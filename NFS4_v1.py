@@ -35,3 +35,9 @@ else:
 
 print('deadline of project 01.06.2016')
 print()
+
+### helpful info ###
+# введём два числа
+# n = int(input('Введите первое число: '))
+# m = int(input('Введите второе число: '))
+# print('{} + {} = {}'.format(n, m, n + m))
