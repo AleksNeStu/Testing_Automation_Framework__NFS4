@@ -5,6 +5,7 @@
 #A.V.Nesterovich@gmail.com
 #I must do it
 
+import sys
 print('')
 print('''Menu [NFS4 test cases (for Linux base systems)]:
       1. Permission test [xxx]
@@ -29,3 +30,8 @@ elif choice == 5:
     print('You have chosen: -=5. ACL test #4 [xxx]=-')
 else:
     print('Incorrect choice')
+
+#To be continue...
+
+print('deadline of project 01.06.2016')
+print()
