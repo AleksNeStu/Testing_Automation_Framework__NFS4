@@ -53,7 +53,7 @@ In order to view the full description file - any pdf viewer
 
 5. Contacts:
 ============
-mail: xxx
+mail: yyy
 Skype: xxx
 
 CONCLUSION:
