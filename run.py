@@ -1,83 +1,84 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-#Testcases for testing NFSv4 file system on linux-like systems
-#Developed by AleksNeStu
-#A.V.Nesterovich@gmail.com
+#################################################################
+# Testcases for testing NFSv4 file system on linux-like systems #
+# Developed by AleksNeStu                                       #
+#################################################################
 
-import sys
-import socket
-from os import *
-import curses
+################Import the necessary packages and attributes#####
+from sys import *
+from socket import *
+from os import system
+from cursesmenu import *
+from cursesmenu.items import *
 
+################Custom functions##################################
+#Function Print hello_world
+def hello_world():
+    print('Hello, World!')
 
-#------------------MENU-----------------------------------
-def get_param(prompt_string):
-     screen.clear()
-     screen.border(0)
-     screen.addstr(2, 2, prompt_string)
-     screen.refresh()
-     input = screen.getstr(10, 10, 60)
-     return input
-
+#Function Execute command
 def execute_cmd(cmd_string):
-     system("clear")
-     a = system(cmd_string)
-     print ""
-     if a == 0:
-          print "Command executed correctly"
-     else:
-          print "Command terminated with error"
-     raw_input("Press enter")
-     print ""
-
-x = 0
-
-while x != ord('4'):
-     screen = curses.initscr()
-
-     screen.clear()
-     screen.border(0)
-     screen.addstr(2, 2, "<NFSv4 test suite> [Run on client-side!!!]")
-     screen.addstr(4, 4, "1 - Check the test environment")
-     screen.addstr(5, 4, "2 - Run test #1 {ACls with long length}")
-     screen.addstr(6, 4, "3 - Run test #2 {ACLs ...}")
-     screen.addstr(7, 4, "4 - Run test #3 {ACLs ...}")
-     screen.addstr(8, 4, "5 - Run test #4 {xxx}")
-     screen.addstr(9, 4, "6 - Run test #5 {yyy}")
-     screen.addstr(10, 4, "7 - Run test #1-5 {Complex}")
-     screen.addstr(11, 4, "8 - Exit")
-     screen.refresh()
-
-     x = screen.getch()
-
-     if x == ord('1'):
-          curses.endwin()
-          execute_cmd("uname -a")
-
-     if x == ord('2'):
-          curses.endwin()
-          execute_cmd("df -h")
-
-     if x == ord('3'):
-          curses.endwin()
-          execute_cmd("pwd -P")
-
-     if x == ord('4'):
-          curses.endwin()
-          execute_cmd("cat /etc/hosts")
-
-     if x == ord('5'):
-          curses.endwin()
-          execute_cmd("fdisk -l")
-
-     if x == ord('6'):
-          curses.endwin()
-          execute_cmd("time")
-
-     if x == ord('7'):
-          print("NFSv4")
+    system("clear")
+    a = system(cmd_string)
+    print ""
+    if a == 0:
+        print "Command executed correctly"
+    else:
+        print "Command terminated with error"
+    raw_input("Press enter")
+    print ""
 
 
-curses.endwin()
-#------------------MENU-----------------------------------
+
+#Function Get string parameter
+
+#Function Read & Print file to display  /  print(open('./README.md').read())
+#def print_txt(txt_string):
+#    o = open(txt_string)
+#    print(o.read())
+
+################Custom functions##################################
+
+
+################MENU##############################################
+def main():
+    menu = CursesMenu("<NFSv4 test suite> [Run from Client side]", "  MENU:") # Create the root menu
+#   item1 = FunctionItem("Read Help", print_txt, ["./README.md"])
+#   item1 = CommandItem("Read Help", "python ./test.py")
+#   menu1 = FunctionItem("Read Help", execute_cmd, ["cat ./README.md | less"])   #help
+#   item1 = FunctionItem("Read Help", execute_cmd, ["print(open('./README.md').read())"])
+#   function_item = FunctionItem("Check test environment", execute_cmd, ["ls -lash"])
+#   command_item = CommandItem("Command", "python -ui ./13-input.py")
+#   submenu = SelectionMenu(["item1", "item2", "item3"])
+
+    menu1 = FunctionItem("Read Help", execute_cmd, ["cat ./README.md | less"])   #help
+    menu2 = CommandItem("Check test environment", "python -ui ./payload/test-test.py")
+
+    menu3 = CursesMenu("<NFSv4 test suite> [Run from Client side]", "  Run test cases:")
+    test1 = CommandItem("1", "python -ui ./payload/test1.py")
+    test2 = CommandItem("2", "python -ui ./payload/test2.py")
+    test3 = CommandItem("3", "python -ui ./payload/test3.py")
+    test4 = CommandItem("4", "python -ui ./payload/test4.py")
+    test5 = CommandItem("5", "python -ui ./payload/test5.py")
+    tests = CommandItem("1..5", "python -ui ./payload/test1_5.py")
+    menu3.append_item(test1)
+    menu3.append_item(test2)
+    menu3.append_item(test3)
+    menu3.append_item(test4)
+    menu3.append_item(test5)
+    menu3.append_item(tests)
+    menu4 = SubmenuItem("Run test cases", menu3, menu)
+
+    #Add the items to the menu
+    menu.append_item(menu1)
+    menu.append_item(menu2)
+    menu.append_item(menu4)
+    menu.start()
+    menu.join()
+#show the menu and allow the users to interact
+
+if __name__ == "__main__":
+    main()
+################MENU##############################################
