@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/NFS4.iml" filepath="$PROJECT_DIR$/.idea/NFS4.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../essential/.idea/essential.iml" filepath="$PROJECT_DIR$/../../essential/.idea/essential.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../ltp/.idea/ltp.iml" filepath="$PROJECT_DIR$/../../ltp/.idea/ltp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../starter/.idea/starter.iml" filepath="$PROJECT_DIR$/../../starter/.idea/starter.iml" />
+    </modules>
+  </component>
+</project>

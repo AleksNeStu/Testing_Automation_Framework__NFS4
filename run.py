@@ -7,11 +7,11 @@
 #################################################################
 
 ################Import the necessary packages and attributes#####
-from sys import *
-from socket import *
 from os import system
+
 from cursesmenu import *
 from cursesmenu.items import *
+
 
 ################Custom functions##################################
 #Function Print hello_world
