@@ -19,16 +19,16 @@ The structure of the project:
 Help:
 -----
 In order quick start run "./run.py" and and navigate on it.
->Read Help @Run to see this help:)
->Check test environment @Run to step-by-step to run the test client and server on the possibility of testing
->Run test cases (5 tests, Exit] @Run to execute test separately and all at once
- >Test #1 - ***
- >Test #2 - ***
- >Test #3 - ***
- >Test #4 - ***
- >Test #5 - ***
- >Test #1..5 - ***
->Exit - Exit from program @Run to exit from program
+-Read Help @Run to see this help:)
+-Check test environment @Run to step-by-step to run the test client and server on the possibility of testing
+-Run test cases (5 tests, Exit] @Run to execute test separately and all at once
+ -Test #1 - ***
+ -Test #2 - ***
+ -Test #3 - ***
+ -Test #4 - ***
+ -Test #5 - ***
+ -Test #1..5 - ***
+-Exit - Exit from program @Run to exit from program
 
 The technologies of the project:
 ------------------------------
@@ -47,8 +47,8 @@ In order to run the tests:
 In order to clone the project from git-hub: https://github.com/AleksNeStu/NFSv4.git:
 - internet-connection :)
 In order to view the full description documentation file "Readme.pdf":
- - any pdf viewer or browser.
- A little time and desire...
+- any pdf viewer or browser.
+A little time and desire...
 
 4. Useful references:
 =====================
