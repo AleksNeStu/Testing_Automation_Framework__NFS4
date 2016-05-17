@@ -30,7 +30,7 @@ The structure of the project:
 - "./NFS4_tests_info.pdf" - the full description of work with the project
 
 The technology of the project:
-- Linux-like systems (e.q. Fedora 23 x86-64, RHEL 7.1 x86-64)
+- Linux-like systems (e.q. Fedora 23 x86-64, RHEL 7.2 x86-64)
 - Python 2.7 interpreter with standart library
 - IDE (Pycharm 2016.1, Sublime Text 3)
 - Debugger (Winpdb)
