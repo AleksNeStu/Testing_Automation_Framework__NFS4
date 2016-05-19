@@ -8,9 +8,8 @@
 
 ################Import the necessary packages and attributes#####
 from os import system
-
-from cursesmenu import *
-from cursesmenu.items import *
+from cursesmenu import *        #availible local version ./cursesmenu https://github.com/pmbarrett314/curses-menu.git
+from cursesmenu.items import *  #availible local version ./cursesmenu https://github.com/pmbarrett314/curses-menu.git
 
 
 ################Custom functions##################################
@@ -57,7 +56,7 @@ def main():
     menu2 = CommandItem("Check test environment", "python -ui ./payload/test-test.py")
 
     menu3 = CursesMenu("<NFSv4 test suite> [Run from Client side]", "  Run test cases:")
-    test1 = CommandItem("1", "python -ui ./payload/test1.py")
+    test1 = CommandItem("Test #1: NFSv4 test case [Limits the length of the ACLs attributes]", "python -ui ./payload/test1.py")
     test2 = CommandItem("2", "python -ui ./payload/test2.py")
     test3 = CommandItem("3", "python -ui ./payload/test3.py")
     test4 = CommandItem("4", "python -ui ./payload/test4.py")
