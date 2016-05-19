@@ -11,11 +11,13 @@ Subject of testing: content, ACLs (Access Control Lists), etc.
 2. Project description:
 =======================
 The structure of the project:
-- "./run.py" - the main file [MENU: Read Help, Check test environment, Run test cases (5 tests), Exit];
-- "./payload/" - the directory which contains a set of tests (each file is a separate test) *** can be supplemented;
+- "./RFC/" - the directory which contains RFC documents about NFSv4 and ACLs;
+- "./cursesmenu/" - the directory which contains python module "The simple console menu system using the curses library";
 - "./logs/" - the directory which contains the execution results (log-files in text format) [log_run.log, log_result.log];
+- "./payload/" - the directory which contains a set of tests (each file is a separate test) *** can be supplemented;
 - "./Readme.pdf" - the full description of my work with the project and useful info [Intro, NFSv4, ACLs, Test task, Test Implementation];
-- "./Screen.png" - the program's appearance.
+- "./Screen.png" - the program's appearance;
+- "./run.py" - the main file [MENU: Read Help, Check test environment, Run test cases (5 tests), Exit].
 
 Help:
 -----
@@ -23,7 +25,7 @@ In order quick start run "./run.py" and and navigate on it.
 -Read Help @Run to see this help:)
 -Check test environment @Run to step-by-step to run the test client and server on the possibility of testing
 -Run test cases (5 tests, Exit] @Run to execute test separately and all at once
- -Test #1 - ***
+ -Test #1: NFSv4 test case [Limits the length of the ACLs attributes]
  -Test #2 - ***
  -Test #3 - ***
  -Test #4 - ***
