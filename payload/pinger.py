@@ -1,15 +1,19 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+r"""Ping of the remote host
 
-#######################################################################
-# Ping command and display back in real-time output                   #
-# Developed by AleksNeStu                                             #
-#######################################################################
 
+This module provides ping remote host in real time mode with display information.
+Number of the counts equal to 3.
+In order to use it need call it:
+pinger(host)
+host - hostname of the remote host
+@Developed by AleksNeStu
+
+"""
 import subprocess
 import sys
 
-#Function of ping the host with 3 counts
 def pinger(host):
     if not host:
         return
