@@ -1,5 +1,4 @@
 ![main window of program](https://github.com/AleksNeStu/NFSv4/blob/master/Screen.png)
-![main window of program](https://github.com/AleksNeStu/NFSv4/blob/master/Pinger.png)
 LICENSE
 =======
 Free for personal use:)
