@@ -13,10 +13,16 @@ host - hostname of the remote host
 """
 import subprocess
 import sys
+import socket
 
 def pinger(host):
     if not host:
         return
+#Print the received info
+    print("""
+=============================================================================
+    """)
+    print "[Ping: ", socket.gethostname(), " --->>> ", host, "]"
     ping_t = subprocess.Popen(["ping", "-c3", host], stderr=subprocess.PIPE)
     while True:
         out = ping_t.stderr.read(1)
@@ -26,3 +32,8 @@ def pinger(host):
         if out != '':
             sys.stdout.write(out)
             sys.stdout.flush()
+    print("""
+=============================================================================
+    """)
+
+pinger("localhost")
