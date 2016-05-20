@@ -1,14 +1,18 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+#######################################################################
+# Test #1: NFSv4 test case [Limits the length of the ACLs attributes] #
+# Developed by AleksNeStu                                             #
+#######################################################################
+
 import socket #in order get IP, hostname (remote, local)
 import time
 import subprocess  #in order run External Command And Get Output
+from pinger import *      #real-time ping module with 5 counts
 #import platform
 ##in order to get uname info#from socket import *
 #from socket import gaierror
-
-
 
 print("""
 =========================================================================
@@ -58,17 +62,29 @@ print("""
 =========================================================================
 """)
 print "[Client]"
-print "uname    : ",client_uname
-print "hostname : ",client
-print "ip       : ",client_ip
+print "Uname    : ",client_uname
+print "Hostname : ",client
+print "IP       : ",client_ip
 print
 print "[Server]"
-print "uname    : ",server_uname
-print "hostname : ",server
-print "ip       : ",server_ip
+print "Uname    : ",server_uname
+print "Hostname : ",server
+print "IP       : ",server_ip
+print
 print("""
 =========================================================================
 """)
-print("Test")
-time.sleep(60)
+time.sleep(3)
+#ping call from module pinger
 print
+print "[Ping Client --->>> Server]"
+sserver=str(server)
+pinger(sserver)
+print
+print("Ping is done with status OK.")
+print("""
+=========================================================================
+""")
+print('The test will be started in 10 seconds')
+time.sleep(10)
+print "GO!"
