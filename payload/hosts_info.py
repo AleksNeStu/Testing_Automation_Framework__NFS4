@@ -27,20 +27,20 @@ def get_hosts_info(rmhost):
     #client_uname = platform.system(), platform.release(), platform.version(), platform.machine()
 
 #Get remote server hostname, IP
+    server_uname_t = subprocess.Popen(["rsh","-n", rmhost, "uname -a"], stdout=subprocess.PIPE)  #uname remote >>> sever_uname
+    server_uname = server_uname_t.communicate()
+
     while True:
         try:
 #           server = str(raw_input("Please enter the hostname of the remote host: "))  #rmserver
             server_ip = socket.gethostbyname(rmhost)
             break
         except socket.gaierror:
-            print "Error! Enter correct information, for example: servename, smain, ..."
-# Get remote server uname
-    server_uname_t = subprocess.Popen(["rsh","-n", rmhost, "uname -a"], stdout=subprocess.PIPE)  #uname remote >>> sever_uname
-    server_uname = server_uname_t.communicate()                                                  #uname remote >>> sever_uname
-
+            print "Error! Enter correct information, for example: servername, smain, ..."
+            break
 #Print the received info
     print("""
-=============================================================================
+=========================================================================
     """)
     print "[Client]"
     print "Uname    : ",client_uname
@@ -52,5 +52,5 @@ def get_hosts_info(rmhost):
     print "Hostname : ",rmhost
     print "IP       : ",server_ip
     print("""
-=============================================================================
+=========================================================================
     """)
