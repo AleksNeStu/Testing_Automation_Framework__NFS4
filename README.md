@@ -36,7 +36,7 @@ In order quick start run "./run.py" and and navigate on it.
 The technologies of the project:
 ------------------------------
 - Linux-like systems (e.q. Fedora 23 x86-64, RHEL 7.2 x86-64);
-- Python with 2.7 interpreter with standart library + custom modules: pip install curses-menu (A simple Python menu-based GUI system on the terminal using curses);
+- Python with 2.7 interpreter with standart library + addition local modules;
 - Bash-scripting (use in Python code);
 - IDE (Pycharm 2016.1 + Plugins);
 - Editor (Sublime Text 3).
