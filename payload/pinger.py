@@ -19,19 +19,13 @@ def pinger(host):
     if not host:
         return
 #Print the received info
-    print("""
-=========================================================================
-    """)
-    print "[Ping: ", socket.gethostname(), " --->>> ", host, "]"
+    print "    Ping : ", socket.gethostname(), " --->>> ", host
     ping_t = subprocess.Popen(["ping", "-c3", host], stderr=subprocess.PIPE)
     while True:
         out = ping_t.stderr.read(1)
         if out == '' and ping_t.poll() != None:
             break
-            print ("Server: ", host, "is not available")
+            print host, "isnt available now"
         if out != '':
             sys.stdout.write(out)
             sys.stdout.flush()
-    print("""
-=========================================================================
-    """)
