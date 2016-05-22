@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-r"""Check the type of the file system
+r"""Check the type of the file system (call with function)
 
 
 This module provides check the type of file system after entering the mount point
