@@ -2,6 +2,13 @@
 # -*- coding: utf-8 -*-
 r"""The test data generator for testing NFSv4 and ACLs
 
+Opportunities:
+- Create a user in available groups to do the tests
+- Create a users according to specified range (after input count)
+- Clean all users created for tests
+- Clean all groups created for tests
+- Retrieve the list of user from /etc/passwd file
+-
 @Developed by AleksNeStu
 
 """
@@ -10,49 +17,31 @@ import random    #Random variable generators
 import commands	 #Execute shell commands via os.popen() and return status, output
 import re		 #Support for regular expressions (RE)
 
-class full_generator(object):
+class full_cleaner(object):
 
 
-#Generate range for groups (group names, gid (7000 + g range) according input data "g - number of groups"
-#GID - values between 0 and 999 are typically reserved for system accounts
-	def create_groups_n(self, g):
-		for i in range(1,g+1):
-			gname = "nfs_group" + str(i)
-			gid = str(7000 + i)
-			self.create_groups(gname, gid)
+#####################Clean all users or groups created for testing########################
+#userdel - delete a user account and related files
+#-f - force some actions that would fail otherwise
+#-r - remove home directory and mail spool
+	def clean_users(self):
+		for uname in self.users_list:
+			cmd = commands.getoutput('userdel -r ' + uname)
+			print "    User del: " + uname + " / has been done"
+			if cmd != "":
+				print "    User del: " + uname + " / with errors"
+		self.users_list = []
 
+#####################Clean all groups created for testing########################
+#groupdel - delete a group
+	def clean_groups(self):
+		for gname in self.groups_list:
+			cmd = commands.getoutput('groupdel ' + gname[0])
+			print "    Group del: " + gname[0] + " / has been done"
+			if cmd != "":
+				print "    Group del: " + gname[0] + " / with errors"
+		self.groups_list = []
 
-#Generate groups according the data from "create_groups_n" [consistently in range]
-#groupadd -f -g 7000(range) nfs_group(range)
-# -f - force	-g GID
-	def create_groups(self, gname, gid):
-		cmd = commands.getoutput("groupadd -f -g " + gid + " " + gname)
-		print "    Group: " + gname + " / GID: " + gid + " / has been created"
-		if cmd != "":
-			print "    Group: " + gname + " / GID: " + gid + " / with errors"
-
-#Generate range for users (user names, uid (7000 + g range) according input data "u - number of users"
-#UID - values between 0 and 999 are typically reserved for system accounts
-	def create_users_n(self, u):
-		for i in range(1,u+1):
-			uname = "nfs_user" + str(i)
-			uid = str(7000 + i)
-			self.create_users(uname, uid)
-
-#Generate users according the data from "create_users_n" [random group select]
-#useradd -f -g 7000(range) nfs_group(range)
-#UID The numerical value of the user's ID.
-#useradd -g "random_from_exist" -m uname -u uid -p nfs
-#-g - the group name for a new user's initial group
-#-m - create the user's home directory and new user name
-#-u - UID
-#-p - the encrypted password
- 	def create_users(self, uname, uid):
-		rgname = self.groups_list[random.randint(0, len(self.groups_list) - 1)][0]  #random select from  the previous created groups
-		cmd = commands.getoutput("useradd " + "-g " + rgname + " -p nfs" + " -m " + uname + " -u " + uid)
-		print "    User: " + uname + " / UID: " + uid + " / GID: " + rgname + " / has been created"
-		if cmd != "":
-			print "    User: " + uname + " / UID: " + uid + " / GID: " + rgname + " / with errors"
 
 # List of groups
 	groups_list = []  # empty list of groups for start
