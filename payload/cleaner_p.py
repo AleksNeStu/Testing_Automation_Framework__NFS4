@@ -19,7 +19,7 @@ import re		 #Support for regular expressions (RE)
 from optparse import OptionParser
 
 
-#add options
+#add options in
 parser = OptionParser()
 parser.add_option("--gu", action="store_true", dest="gu", default=False, help="Get list of users created for testing")
 parser.add_option("--gg", action="store_true", dest="gg", default=False, help="Get list of groups created for testing")
