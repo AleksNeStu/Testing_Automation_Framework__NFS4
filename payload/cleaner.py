@@ -1,19 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-r"""The test data generator for testing NFSv4 and ACLs
+r"""The test data cleaner for testing NFSv4 and ACLs (run via call functions)
 
 Opportunities:
-- Create a user in available groups to do the tests
-- Create a users according to specified range (after input count)
-- Clean all users created for tests
-- Clean all groups created for tests
-- Retrieve the list of user from /etc/passwd file
--
+Get list of users created for testing
+Get list of groups created for testing
+Clean all users created for testing
+Clean all groups created for testing
+
 @Developed by AleksNeStu
 
 """
 
-import random    #Random variable generators
 import commands	 #Execute shell commands via os.popen() and return status, output
 import re		 #Support for regular expressions (RE)
 
