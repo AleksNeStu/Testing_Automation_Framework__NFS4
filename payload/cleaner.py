@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 r"""The test data cleaner for testing NFSv4 and ACLs (run via call functions)
 
-Opportunities:
+Opportunities :
 Get list of users created for testing
 Get list of groups created for testing
 Clean all users created for testing
