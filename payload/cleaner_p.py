@@ -7,8 +7,11 @@ Opportunities:
 --gg - Get list of groups created for testing
 --cu - Clean all users created for testing
 --cg - Clean all groups created for testing
+--full - Full get and clean data created for testing
 
-example: python cleaner_r.py --gu --cu --gg --cg
+example:
+LOCAL: python cleaner_r.py --gu --cu --gg --cg
+REMOTE: cat ./cleaner_p.py | rsh rhel python - --full
 
 @Developed by AleksNeStu
 
@@ -25,6 +28,7 @@ parser.add_option("--gu", action="store_true", dest="gu", default=False, help="G
 parser.add_option("--gg", action="store_true", dest="gg", default=False, help="Get list of groups created for testing")
 parser.add_option("--cu", action="store_true", dest="cu", default=False, help="Clean all users created for testing")
 parser.add_option("--cg", action="store_true", dest="cg", default=False, help="Clean all groups created for testing")
+parser.add_option("--full", action="store_true", dest="full", default=False, help="Full get and clean data created for testing")
 (options, args) = parser.parse_args()
 
 class full_cleaner(object):
@@ -36,7 +40,7 @@ class full_cleaner(object):
 #-r - remove home directory and mail spool
 	def clean_users(self):
 		for uname in self.users_list:
-			cmd = commands.getoutput('userdel -r ' + uname)
+			cmd = commands.getoutput('/usr/sbin/userdel -r ' + uname)
 			print "    User del: " + uname + " / has been done"
 			if cmd != "":
 				print "    User del: " + uname + " / with errors"
@@ -46,7 +50,7 @@ class full_cleaner(object):
 #groupdel - delete a group
 	def clean_groups(self):
 		for gname in self.groups_list:
-			cmd = commands.getoutput('groupdel ' + gname[0])
+			cmd = commands.getoutput('/usr/sbin/groupdel ' + gname[0])
 			print "    Group del: " + gname[0] + " / has been done"
 			if cmd != "":
 				print "    Group del: " + gname[0] + " / with errors"
@@ -128,3 +132,9 @@ if options.cu is True:
 	full_cleaner().clean_users()	# --cu CLEAN USERS
 if options.cg is True:
 	full_cleaner().clean_groups()	# --cg CLEAN GROUPS
+if options.full is True:
+	full_cleaner().get_users()
+	full_cleaner().get_groups()
+	full_cleaner().clean_users()
+	full_cleaner().clean_groups()
+exit()
