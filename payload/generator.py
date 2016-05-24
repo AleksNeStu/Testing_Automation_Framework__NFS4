@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-r"""The test data generator for testing NFSv4 and ACLs
+r"""The test data generator for testing NFSv4 and ACLs (run via call functions)
 
 @Developed by AleksNeStu
 
