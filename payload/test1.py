@@ -47,12 +47,12 @@ print
 #i3 Get, check type of the file system on server and set ACEs limits in accordance with it
 print "    3) NFSv4 server exported dir filesystem type & ACEs limits: "
 #Get fs type on "server" export dir "nfs_exp"
-p1 = subprocess.Popen(['cat', './fstype_check_l.py', ], stdout=subprocess.PIPE)
-p2 = subprocess.Popen(['rsh', server, 'python', '-', '-p', nfs_exp], stdin=p1.stdout, stdout=subprocess.PIPE)
-p1.stdout.close()
-server_fs = p2.communicate()[0]			#server_fs - fs type for export dir "nfs_exp"
+a1 = subprocess.Popen(["cat", "./fstype_check_l.py", ], stdout=subprocess.PIPE)
+a2 = subprocess.Popen(['rsh', str(server), "python", "-", "-p", nfs_exp], stdin=a1.stdout, stdout=subprocess.PIPE)
+a1.stdout.close()
+server_fs = a2.communicate()[0]			#server_fs - fs type for export dir "nfs_exp"
 #Set limits according fs type
-if server_fs == str('xfs'):
+if server_fs == str("xfs"):
 	aces_max = 25
 else:
 	aces_max = 32
@@ -62,7 +62,8 @@ print
 
 #i4 Set the number of users and groups to be created on the NFSv4 server
 print "    4) The number of users and groups to be created on the NFSv4 server: "
-
+users = int(raw_input("    The number of users [input] : "))
+groups = int(raw_input("    The number of groups [input] : "))
 
 #Print test intro info
 time.sleep(3)
@@ -86,6 +87,34 @@ print
 pinger(str(server))
 time.sleep(3)
 print
+print
+
+#t3 Create groups on the NFSv4 server
+print "    [Create", str(groups), "groups on the NFSv4 server] : "
+print
+b1 = subprocess.Popen(["cat", "./generator_p.py", ], stdout=subprocess.PIPE)
+b2 = subprocess.Popen(["rsh", str(server), "python", "-", "-g", str(groups)], stdin=b1.stdout, stdout=subprocess.PIPE)
+b1.stdout.close()
+groups_new = b2.communicate()[0]			#creating groups
+print groups_new							#display the process of creating groups
+
+#t4 Create groups on the NFSv4 server
+print "    [Create", str(users), "users on the NFSv4 server] : "
+print
+c1 = subprocess.Popen(["cat", "./generator_p.py", ], stdout=subprocess.PIPE)
+c2 = subprocess.Popen(["rsh", str(server), "python", "-", "--gg", "-u", str(users)], stdin=c1.stdout, stdout=subprocess.PIPE)
+c1.stdout.close()
+users_new = c2.communicate()[0]				#creating users
+print users_new								#display the process of creating users
+
+#t7 Clean created groups and users on the NFSv4 server
+print "    Clean created users and groups on the NFSv4 server] : "
+print
+d1 = subprocess.Popen(["cat", "./cleaner_p.py", ], stdout=subprocess.PIPE)
+d2 = subprocess.Popen(["rsh", str(server), "python", "-", "--full"], stdin=d1.stdout, stdout=subprocess.PIPE)
+d1.stdout.close()
+full_del = d2.communicate()[0]
+print full_del								#display the process of cleaning the previously created groups and users
 
 #####################LOG AND PRINT RESULTS################################
 #print "Test #1 [PASSED]"
