@@ -52,9 +52,9 @@ class full_generator(object):
 #Generate range for users (user names, uid (7000 + g range) according input data "u - number of users"
 #UID - values between 0 and 999 are typically reserved for system accounts
 	def create_users_n(self, u):
-		while len(self.groups_list) != options.g: # in order to tun "python generator_p.py -g ** --gg -u **"
-			time.sleep(3)
-		else:
+		# while len(self.groups_list) != options.g: # in order to tun "python generator_p.py -g ** --gg -u **"
+		# 	print "wait"
+		# else:
 			for i in range(1,u+1):
 				uname = "nfs_user" + str(i)
 				uid = str(7000 + i)
