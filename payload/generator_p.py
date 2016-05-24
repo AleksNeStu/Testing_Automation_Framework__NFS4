@@ -25,6 +25,7 @@ parser.add_option("--gu", action="store_true", dest="gu", default=False, help="G
 parser.add_option("--gg", action="store_true", dest="gg", default=False, help="Get list of groups created for testing")
 parser.add_option("-u", "--users", dest="u", type="int", help="Generate u users for testing")
 parser.add_option("-g", "--groups", dest="g", type="int", help="Generate g groups for testing")
+parser.add_option("--nfs1", action="store_true", dest="nfs1", default=False, help="Batch actions for test1 = -g --gg -cu")
 (options, args) = parser.parse_args()
 
 class full_generator(object):
@@ -148,3 +149,7 @@ if options.u > 0 and options.gg is not False:
 	full_generator().create_users_n(options.u)		# -u CREATE USERS
 if options.g > 0:
 	full_generator().create_groups_n(options.g)		# -g CREATE GROUPS
+if options.nfs1 is True:							# --nfs1 PAYLOAD
+	full_generator().create_groups_n(options.g)
+	full_generator().get_groups()
+	full_generator().create_users_n(options.u)
