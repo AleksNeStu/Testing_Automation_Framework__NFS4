@@ -14,6 +14,7 @@ example: python ./generator_p.py -g 60 --gg -u 76
 
 """
 
+import time
 import random  						#Random variable generators
 import commands	 					#Execute shell commands via os.popen() and return status, output
 import re		 					#Support for regular expressions (RE)
@@ -25,7 +26,6 @@ parser.add_option("--gu", action="store_true", dest="gu", default=False, help="G
 parser.add_option("--gg", action="store_true", dest="gg", default=False, help="Get list of groups created for testing")
 parser.add_option("-u", "--users", dest="u", type="int", help="Generate u users for testing")
 parser.add_option("-g", "--groups", dest="g", type="int", help="Generate g groups for testing")
-parser.add_option("--nfs1", action="store_true", dest="nfs1", default=False, help="Batch actions for test1 = -g --gg -cu")
 (options, args) = parser.parse_args()
 
 class full_generator(object):
@@ -44,7 +44,7 @@ class full_generator(object):
 #groupadd -f -g 7000(range) nfs_group(range)
 # -f - force	-g GID
 	def create_groups(self, gname, gid):
-		cmd = commands.getoutput("groupadd -f -g " + gid + " " + gname)
+		cmd = commands.getoutput("/usr/sbin/groupadd -f -g " + gid + " " + gname)
 		print "    Group: " + gname + " / GID: " + gid + " / has been created"
 		if cmd != "":
 			print "    Group: " + gname + " / GID: " + gid + " / with errors"
@@ -52,10 +52,13 @@ class full_generator(object):
 #Generate range for users (user names, uid (7000 + g range) according input data "u - number of users"
 #UID - values between 0 and 999 are typically reserved for system accounts
 	def create_users_n(self, u):
-		for i in range(1,u+1):
-			uname = "nfs_user" + str(i)
-			uid = str(7000 + i)
-			self.create_users(uname, uid)
+		while len(self.groups_list) != options.g: # in order to tun "python generator_p.py -g ** --gg -u **"
+			time.sleep(3)
+		else:
+			for i in range(1,u+1):
+				uname = "nfs_user" + str(i)
+				uid = str(7000 + i)
+				self.create_users(uname, uid)
 
 #Generate users according the data from "create_users_n" [random group select]
 #useradd -f -g 7000(range) nfs_group(range)
@@ -67,7 +70,7 @@ class full_generator(object):
 #-p - the encrypted password
  	def create_users(self, uname, uid):
 		rgname = self.groups_list[random.randint(0, len(self.groups_list) - 1)][0]  #random select from  the previous created groups
-		cmd = commands.getoutput("useradd " + "-g " + rgname + " -p nfs" + " -m " + uname + " -u " + uid)
+		cmd = commands.getoutput("/usr/sbin/useradd " + "-g " + rgname + " -p nfs" + " -m " + uname + " -u " + uid)
 		print "    User: " + uname + " / UID: " + uid + " / GID: " + rgname + " / has been created"
 		if cmd != "":
 			print "    User: " + uname + " / UID: " + uid + " / GID: " + rgname + " / with errors"
@@ -149,7 +152,3 @@ if options.u > 0 and options.gg is not False:
 	full_generator().create_users_n(options.u)		# -u CREATE USERS
 if options.g > 0:
 	full_generator().create_groups_n(options.g)		# -g CREATE GROUPS
-if options.nfs1 is True:							# --nfs1 PAYLOAD
-	full_generator().create_groups_n(options.g)
-	full_generator().get_groups()
-	full_generator().create_users_n(options.u)
