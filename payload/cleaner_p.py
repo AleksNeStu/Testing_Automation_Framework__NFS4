@@ -7,6 +7,9 @@ Opportunities:
 --gg - Get list of groups created for testing
 --cu - Clean all users created for testing
 --cg - Clean all groups created for testing
+
+example: python cleaner_r.py --gu --cu --gg --cg
+
 @Developed by AleksNeStu
 
 """
