@@ -39,7 +39,7 @@ print "    NFSv4 server: ",server   #server - NFS server's hostname
 print
 
 #i2 Set, check (from client to server via "showmount -e server") path of exportfs on server
-print "    2) Path to the exported directory on NFSv4 server: "
+print "    2) Path to the exported directory on NFSv4 server (/nfsdir, /mnt/nfs, ...): "
 nfs_exp = nfsexpcheck(server)		#nfs_exp - dir for export (will be mounted on client side)
 print "    NFSv4 exported dir: ",nfs_exp #view /nfs, /dirnfs, ...
 print
@@ -48,7 +48,7 @@ print
 print "    3) NFSv4 server exported dir filesystem type & ACEs limits: "
 #Get fs type on "server" export dir "nfs_exp"
 a1 = subprocess.Popen(["cat", "./fstype_check_l.py", ], stdout=subprocess.PIPE)
-a2 = subprocess.Popen(['rsh', str(server), "python", "-", "-p", nfs_exp], stdin=a1.stdout, stdout=subprocess.PIPE)
+a2 = subprocess.Popen(['/usr/bin/rsh', server, "python", "-", "-p", nfs_exp], stdin=a1.stdout, stdout=subprocess.PIPE)
 a1.stdout.close()
 server_fs = a2.communicate()[0]			#server_fs - fs type for export dir "nfs_exp"
 #Set limits according fs type
@@ -62,11 +62,19 @@ print
 
 #i4 Set the number of users and groups to be created on the NFSv4 server
 print "    4) The number of users and groups to be created on the NFSv4 server: "
-users = int(raw_input("    The number of users [input] : "))
-groups = int(raw_input("    The number of groups [input] : "))
+users = str(raw_input("    The number of users [input] : "))
+groups = str(raw_input("    The number of groups [input] : "))
+
+#i5 Set the name of test directory and file which will be created on the export directory on the NFSv4 server
+print
+print "    5) The directory and file which will be created on the export directory on the NFSv4 server: "
+nfs_dir = str(raw_input("    Test directory in NFSv4 server export dir [input] : "))
+path_nfs_dir = nfs_exp + "/" + nfs_dir  #full path to create dir 			mkdir -p "path_nfs_dir"
+nfs_file = str(raw_input("    Test file in NFSv4 server export dir [input] : "))
+path_nfs_file = nfs_exp + "/" + nfs_file  #full path to create file	 		touch "path_nfs_file"
 
 #Print test intro info
-time.sleep(3)
+time.sleep(1)
 print """
 Great! The input data have been received!
 After 7 seconds the test will be started...
@@ -90,31 +98,56 @@ print
 print
 
 #t3 Create groups on the NFSv4 server
-print "    [Create", str(groups), "groups on the NFSv4 server] : "
+print "    [Create", groups, "groups on the NFSv4 server] : "
 print
 b1 = subprocess.Popen(["cat", "./generator_p.py", ], stdout=subprocess.PIPE)
-b2 = subprocess.Popen(["rsh", str(server), "python", "-", "-g", str(groups)], stdin=b1.stdout, stdout=subprocess.PIPE)
+b2 = subprocess.Popen(["/usr/bin/rsh", server, "python", "-", "-g", groups], stdin=b1.stdout, stdout=subprocess.PIPE)
 b1.stdout.close()
 groups_new = b2.communicate()[0]			#creating groups
 print groups_new							#display the process of creating groups
 
 #t4 Create groups on the NFSv4 server
-print "    [Create", str(users), "users on the NFSv4 server] : "
+print "    [Create", users, "users on the NFSv4 server] : "
 print
 c1 = subprocess.Popen(["cat", "./generator_p.py", ], stdout=subprocess.PIPE)
-c2 = subprocess.Popen(["rsh", str(server), "python", "-", "--gg", "-u", str(users)], stdin=c1.stdout, stdout=subprocess.PIPE)
+c2 = subprocess.Popen(["/usr/bin/rsh", server, "python", "-", "--gg", "-u", users], stdin=c1.stdout, stdout=subprocess.PIPE)
 c1.stdout.close()
 users_new = c2.communicate()[0]				#creating users
 print users_new								#display the process of creating users
 
-#t7 Clean created groups and users on the NFSv4 server
-print "    Clean created users and groups on the NFSv4 server] : "
+#t5 Create the test directory and test file in the export directory on the NFSv4 server
+print "    [Create the directory on the NFSv4 server export directory] : "
+d1 = subprocess.Popen(["/usr/bin/rsh", server, "mkdir", "-p", path_nfs_dir], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+d1.communicate()
+print "    Test directory on the [" + server + "] : " + path_nfs_dir + " has been created"
 print
-d1 = subprocess.Popen(["cat", "./cleaner_p.py", ], stdout=subprocess.PIPE)
-d2 = subprocess.Popen(["rsh", str(server), "python", "-", "--full"], stdin=d1.stdout, stdout=subprocess.PIPE)
-d1.stdout.close()
-full_del = d2.communicate()[0]
+print "    [Create the file on the NFSv4 server export directory] : "
+e1 = subprocess.Popen(["/usr/bin/rsh", server, "touch ", path_nfs_file], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+e1.communicate()
+print "    Test file on the [" + server + "] : " + path_nfs_file + " has been created"
+print
+
+#c1 Clean created dir and file on the NFSv4 server
+print "    [Clean created directory and file on the NFSv4 server] : "
+j1 = subprocess.Popen(["/usr/bin/rsh", server, "rm", "-rf", path_nfs_dir], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+j1.communicate()
+print "    Test directory on the [" + server + "] : ", path_nfs_dir, " has been removed"
+print
+k1 = subprocess.Popen(["/usr/bin/rsh", server, "rm", "-rf", path_nfs_file], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+k1.communicate()
+print "    Test file on the [" + server + "] : ", path_nfs_file, " has been removed"
+print
+
+#c2 Clean created groups and users on the NFSv4 server
+print
+print "    [Clean created users and groups on the NFSv4 server] : "
+print
+z1 = subprocess.Popen(["cat", "./cleaner_p.py", ], stdout=subprocess.PIPE)
+z2 = subprocess.Popen(["/usr/bin/rsh", str(server), "python", "-", "--full"], stdin=z1.stdout, stdout=subprocess.PIPE)
+z1.stdout.close()
+full_del = z2.communicate()[0]
 print full_del								#display the process of cleaning the previously created groups and users
+
 
 #####################LOG AND PRINT RESULTS################################
 #print "Test #1 [PASSED]"
