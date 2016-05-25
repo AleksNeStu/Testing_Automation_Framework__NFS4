@@ -23,7 +23,7 @@ def gethostinfo(host):
     #client_uname = platform.system(), platform.release(), platform.version(), platform.machine()
 
 #Get server info (hostname, IP, uname)
-    server_uname_t = subprocess.Popen(["rsh","-n", host, "uname -srp"], stdout=subprocess.PIPE)  #uname remote >>> sever_uname
+    server_uname_t = subprocess.Popen(["/usr/bin/rsh","-n", host, "uname -srp"], stdout=subprocess.PIPE)  #uname remote >>> sever_uname
     server_uname = server_uname_t.communicate()
     server_ip = socket.gethostbyname(host)
 

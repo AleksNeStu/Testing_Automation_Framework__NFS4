@@ -11,7 +11,7 @@ Opportunities:
 
 example:
 LOCAL: python cleaner_r.py --gu --cu --gg --cg
-REMOTE: cat ./cleaner_p.py | rsh rhel python - --full
+REMOTE: cat ./cleaner_p.py | /usr/bin/rsh rhel python - --full
 
 @Developed by AleksNeStu
 
@@ -21,15 +21,6 @@ import commands	 #Execute shell commands via os.popen() and return status, outpu
 import re		 #Support for regular expressions (RE)
 from optparse import OptionParser
 
-
-#add options in
-parser = OptionParser()
-parser.add_option("--gu", action="store_true", dest="gu", default=False, help="Get list of users created for testing")
-parser.add_option("--gg", action="store_true", dest="gg", default=False, help="Get list of groups created for testing")
-parser.add_option("--cu", action="store_true", dest="cu", default=False, help="Clean all users created for testing")
-parser.add_option("--cg", action="store_true", dest="cg", default=False, help="Clean all groups created for testing")
-parser.add_option("--full", action="store_true", dest="full", default=False, help="Full get and clean data created for testing")
-(options, args) = parser.parse_args()
 
 class full_cleaner(object):
 
@@ -57,14 +48,11 @@ class full_cleaner(object):
 		self.groups_list = []
 
 
+########################Get list of groups created for testing############################
 # List of groups
 	groups_list = []  # empty list of groups for start
 	groups_list_len = len(groups_list)
-# List of files
-	users_list = []  # empty list of users for start
-	users_list_len = len(users_list)
 
-########################Get list of groups created for testing############################
 	def get_groups(self):
 		fin = open("/etc/group", "r")
 		strs = fin.readlines()
@@ -93,8 +81,13 @@ class full_cleaner(object):
 				break
 		fin.close()
 
+
 ########################Get list of users created for testing############################
 #Get the list of all users from file /etc/passwd
+# List of users
+	users_list = []  # empty list of users for start
+	users_list_len = len(users_list)
+
 	def get_users(self):
 		f = open("/etc/passwd", "r")
 		strs = f.readlines()
@@ -123,6 +116,15 @@ class full_cleaner(object):
 				break
 		f.close()
 
+# add options in
+parser = OptionParser()
+parser.add_option("--gu", action="store_true", dest="gu", default=False, help="Get list of users created for testing")
+parser.add_option("--gg", action="store_true", dest="gg", default=False, help="Get list of groups created for testing")
+parser.add_option("--cu", action="store_true", dest="cu", default=False, help="Clean all users created for testing")
+parser.add_option("--cg", action="store_true", dest="cg", default=False, help="Clean all groups created for testing")
+parser.add_option("--full", action="store_true", dest="full", default=False, help="Full get and clean data created for testing")
+(options, args) = parser.parse_args()
+
 #use options
 if options.gu is True:
 	full_cleaner().get_users()		# --gu GET USERS
@@ -137,4 +139,3 @@ if options.full is True:
 	full_cleaner().get_groups()
 	full_cleaner().clean_users()
 	full_cleaner().clean_groups()
-exit()

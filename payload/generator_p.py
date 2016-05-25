@@ -20,14 +20,6 @@ import commands	 					#Execute shell commands via os.popen() and return status, 
 import re		 					#Support for regular expressions (RE)
 from optparse import OptionParser	#Parser for command line options
 
-#add options
-parser = OptionParser()
-parser.add_option("--gu", action="store_true", dest="gu", default=False, help="Get list of users created for testing")
-parser.add_option("--gg", action="store_true", dest="gg", default=False, help="Get list of groups created for testing")
-parser.add_option("-u", "--users", dest="u", type="int", help="Generate u users for testing")
-parser.add_option("-g", "--groups", dest="g", type="int", help="Generate g groups for testing")
-(options, args) = parser.parse_args()
-
 class full_generator(object):
 
 
@@ -75,14 +67,12 @@ class full_generator(object):
 		if cmd != "":
 			print "    User: " + uname + " / UID: " + uid + " / GID: " + rgname + " / with errors"
 
+
+########################Get list of groups created for testing############################
 # List of groups
 	groups_list = []  # empty list of groups for start
 	groups_list_len = len(groups_list)
-# List of files
-	users_list = []  # empty list of users for start
-	users_list_len = len(users_list)
 
-########################Get list of groups created for testing############################
 	def get_groups(self):
 		fin = open("/etc/group", "r")
 		strs = fin.readlines()
@@ -113,6 +103,10 @@ class full_generator(object):
 
 ########################Get list of users created for testing############################
 #Get the list of all users from file /etc/passwd
+# List of users
+	users_list = []  # empty list of users for start
+	users_list_len = len(users_list)
+
 	def get_users(self):
 		f = open("/etc/passwd", "r")
 		strs = f.readlines()
@@ -141,6 +135,15 @@ class full_generator(object):
 				break
 		f.close()
 
+# add options
+parser = OptionParser()
+parser.add_option("--gu", action="store_true", dest="gu", default=False, help="Get list of users created for testing")
+parser.add_option("--gg", action="store_true", dest="gg", default=False, help="Get list of groups created for testing")
+parser.add_option("-u", "--users", dest="u", type="int", help="Generate u users for testing")
+parser.add_option("-g", "--groups", dest="g", type="int", help="Generate g groups for testing")
+# parser.add_option("-d", "--dir", dest="d", type="str", help="Create the dir in the given NFS exp dir for testing")
+# parser.add_option("-f", "--file", dest="f", type="str", help="Create the file in the given NFS exp dir for testing")
+(options, args) = parser.parse_args()
 
 #use options
 if options.gu is True:
@@ -152,3 +155,7 @@ if options.u > 0 and options.gg is not False:
 	full_generator().create_users_n(options.u)		# -u CREATE USERS
 if options.g > 0:
 	full_generator().create_groups_n(options.g)		# -g CREATE GROUPS
+# if options.d is not int:
+# 	full_generator().create_nfs_dir(options.d)				# -d CREATE DIR in EXP DIR
+# if options.f is not  int:
+# 	full_generator().create_nfs_file(options.f)				# -f CREATE FILE in EXP DIR
