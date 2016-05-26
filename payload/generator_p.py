@@ -135,6 +135,45 @@ class full_generator(object):
 				break
 		f.close()
 
+############UNIX, LINUX file permissions random generator "rw", "rwx", "x", ..
+# "r" - read permission / "w" - write permission / "x" - execute permission
+	def random_rwx(self):
+		out_str = ""
+		while (out_str == ""):
+			if random.randint(0, 1) == 1:
+				out_str += 'x'
+			if random.randint(0, 1) == 1:
+				out_str += 'w'
+			if random.randint(0, 1) == 1:
+				out_str += 'r'
+		return out_str
+
+#####Test the maximum number of ACEs (Access Control Entries) for dir and file (path) according to the restrictions############################
+# standart permitions (4 ACEs):
+# user::***
+# group::***
+# mask::*** - create after used "setfacl"
+# other::***
+
+	def test_max_aces(self, test_path, max_aces):     #test_path - to the test dir or file / max_aces - the max count of ACEs
+		if not test_path and max_aces:
+			return
+		for i in range(1,max_aces-2): 		# e.q. 23 = [max_aces(25) + 1 - standart ACEs(4) = 22] + [1 for get test error]
+			self.get_users()
+			self.get_groups()
+			random_user = self.users_list[random.randint(0, len(self.users_list)-1)]   # select random users from existent users
+			random_rights = self.random_rwx()
+			cmd = commands.getoutput("/usr/bin/setfacl -m u:" + random_user + ":" + random_rights + " " + test_path)
+			check = cmd.find("long")	   # check the message "Argument list too long" the limit ACEs
+			if check != -1:
+				print "    Test [PASSED]"
+				print "    setfacl -m u:" + random_user + ":" + random_rights + " " + test_path
+				print cmd
+			else:
+				print "    setfacl -m u:" + random_user + ":" + random_rights + " " + test_path
+				print cmd
+
+
 # add options
 parser = OptionParser()
 parser.add_option("--gu", action="store_true", dest="gu", default=False, help="Get list of users created for testing")
@@ -143,6 +182,8 @@ parser.add_option("-u", "--users", dest="u", type="int", help="Generate u users 
 parser.add_option("-g", "--groups", dest="g", type="int", help="Generate g groups for testing")
 # parser.add_option("-d", "--dir", dest="d", type="str", help="Create the dir in the given NFS exp dir for testing")
 # parser.add_option("-f", "--file", dest="f", type="str", help="Create the file in the given NFS exp dir for testing")
+parser.add_option("-p", "--path", dest="p", type="str", help="Path to test dir or file for set ACEs")
+parser.add_option("-m", "--max", dest="m", type="int", help="Max count of ACEs for dir or file according of type of fs")
 (options, args) = parser.parse_args()
 
 #use options
@@ -159,3 +200,6 @@ if options.g > 0:
 # 	full_generator().create_nfs_dir(options.d)				# -d CREATE DIR in EXP DIR
 # if options.f is not  int:
 # 	full_generator().create_nfs_file(options.f)				# -f CREATE FILE in EXP DIR
+if options.p and options.m:
+	# full_generator().get_users()
+	full_generator().test_max_aces(options.p,options.m)		#
