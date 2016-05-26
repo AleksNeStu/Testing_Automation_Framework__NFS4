@@ -154,24 +154,24 @@ class full_generator(object):
 # group::***
 # mask::*** - create after used "setfacl"
 # other::***
-
 	def test_max_aces(self, test_path, max_aces):     #test_path - to the test dir or file / max_aces - the max count of ACEs
-		if not test_path and max_aces:
-			return
-		for i in range(1,max_aces-2): 		# e.q. 23 = [max_aces(25) + 1 - standart ACEs(4) = 22] + [1 for get test error]
-			self.get_users()
-			self.get_groups()
-			random_user = self.users_list[random.randint(0, len(self.users_list)-1)]   # select random users from existent users
-			random_rights = self.random_rwx()
+		self.get_users()			#get users from /ets/password file
+		u1 = self.users_list[:]		#get users list
+		random.shuffle(u1)			#get random but non-repeating users list
+		for i in range(0,len(u1)): 	#any of the created users [len(u1)] can get
+			random_user = u1[i]
+			random_rights = self.random_rwx()    #get random rights rw, rwx, x, ...
 			cmd = commands.getoutput("/usr/bin/setfacl -m u:" + random_user + ":" + random_rights + " " + test_path)
 			check = cmd.find("long")	   # check the message "Argument list too long" the limit ACEs
-			if check != -1:
-				print "    Test [PASSED]"
-				print "    setfacl -m u:" + random_user + ":" + random_rights + " " + test_path
+			if check != -1 and i+4 == max_aces:
+				print				#  i+5 = 3 (standart) + 1 (mask) + 1 (for start with 1 not 0)
+				print "    ACE #",i+5,": setfacl -m u:" + random_user + ":" + random_rights + " " + test_path
 				print cmd
+				print "    Reached the maximum number of ACEs: " + str(max_aces)
+				return True			#The test has been passed
 			else:
-				print "    setfacl -m u:" + random_user + ":" + random_rights + " " + test_path
-				print cmd
+				print "    ACE #",i+5,": setfacl -m u:" + random_user + ":" + random_rights + " " + test_path
+				# return False		#The test has been failed
 
 
 # add options
@@ -200,6 +200,5 @@ if options.g > 0:
 # 	full_generator().create_nfs_dir(options.d)				# -d CREATE DIR in EXP DIR
 # if options.f is not  int:
 # 	full_generator().create_nfs_file(options.f)				# -f CREATE FILE in EXP DIR
-if options.p and options.m:
-	# full_generator().get_users()
-	full_generator().test_max_aces(options.p,options.m)		#
+if options.p is not None and options.m is not None:
+	full_generator().test_max_aces(options.p,options.m)		# -p PATH OF TEST FILE OR DIR 	-m MAX ACEs
