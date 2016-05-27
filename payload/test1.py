@@ -79,7 +79,7 @@ while True:
    except ValueError as err_users_n:
        print err_users_n
 users = str(users_n)
-#Check input data (the number of users) in range [aces_max, 999]
+#Check input data (the number of groups) in range [aces_max, 999]
 while True:
    try:
        groups_n = int(raw_input("    The number of groups [" + str(aces_max) +"..999] [input] : "))
