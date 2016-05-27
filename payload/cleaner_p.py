@@ -70,6 +70,7 @@ class full_cleaner(object):
 			if name_true != None:
 				self.files_list.append(splitedline[i])
 
+
 #userdel - delete a user account and related files
 #-f - force some actions that would fail otherwise
 #-r - remove home directory and mail spool
