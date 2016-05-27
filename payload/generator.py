@@ -21,7 +21,6 @@ class full_generator(object):
 			gid = str(7000 + i)
 			self.create_groups(gname, gid)
 
-
 #Generate groups according the data from "create_groups_n" [consistently in range]
 #groupadd -f -g 7000(range) nfs_group(range)
 # -f - force	-g GID
