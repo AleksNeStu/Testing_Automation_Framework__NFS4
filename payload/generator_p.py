@@ -164,8 +164,8 @@ class full_generator(object):
 			cmd = commands.getoutput("/usr/bin/setfacl -m u:" + random_user + ":" + random_rights + " " + test_path)
 			check = cmd.find("long")	   # check the message "Argument list too long" the limit ACEs
 			if check != -1 and i+4 == max_aces:
-				print				#  i+5 = 3 (standart) + 1 (mask) + 1 (for start with 1 not 0)
-				print "    ACE #",i+5,": setfacl -m u:" + random_user + ":" + random_rights + " " + test_path
+				# i+5 = 3 (standart) + 1 (mask) + 1 (for start with 1 not 0)
+				print "    ACE #",i+5,": setfacl -m u:" + random_user + ":" + random_rights + " " + test_path + " - FAILED!!!"
 				print cmd
 				print "    Reached the maximum number of ACEs: " + str(max_aces)
 				return True			#The test has been passed
@@ -200,5 +200,5 @@ if options.g > 0:
 # 	full_generator().create_nfs_dir(options.d)				# -d CREATE DIR in EXP DIR
 # if options.f is not  int:
 # 	full_generator().create_nfs_file(options.f)				# -f CREATE FILE in EXP DIR
-if options.p is not None and options.m is not None:
+if options.p is not None and options.m > 0:
 	full_generator().test_max_aces(options.p,options.m)		# -p PATH OF TEST FILE OR DIR 	-m MAX ACEs
