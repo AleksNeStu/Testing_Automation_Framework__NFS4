@@ -5,8 +5,13 @@ r"""The test data generator for testing NFSv4 and ACLs (run via call parameters)
 Opportunities:
 --gu - Get list of users created for testing
 --gg - Get list of groups created for testing
---cu - Clean all users created for testing
---cg - Clean all groups created for testing
+--gf - Get list of files created for testing
+-u - Generate u users for testing
+-g - Generate g groups for testing
+-f - Generate f files for testing in -d dir
+-p - Path to test dir or file for set ACEs
+-m - Max count of ACEs for dir or file according of type of fs
+-d - Path to export dir for creating -f files
 
 example: python ./generator_p.py -g 60 --gg -u 76
 
