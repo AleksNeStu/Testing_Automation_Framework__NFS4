@@ -163,8 +163,8 @@ aces_max_s = str(aces_max)
 f1 = subprocess.Popen(["cat", "./generator_p.py", ], stdout=subprocess.PIPE)
 f2 = subprocess.Popen(["/usr/bin/rsh", server, "python", "- ", "-p", path_nfs_dir_s, "-m", aces_max_s], stdin=f1.stdout, stdout=subprocess.PIPE)
 f1.stdout.close()
-fr = f2.communicate()[0]
-print fr		#display the process
+testdir = f2.communicate()[0]
+print testdir		#display the process
 time.sleep(2)
 
 print "    [Test the maximum number of ACEs for file] : "
@@ -172,14 +172,9 @@ print
 h1 = subprocess.Popen(["cat", "./generator_p.py", ], stdout=subprocess.PIPE)
 h2 = subprocess.Popen(["/usr/bin/rsh", server, "python", "- ", "-p", path_nfs_file_s, "-m", aces_max_s], stdin=h1.stdout, stdout=subprocess.PIPE)
 h1.stdout.close()
-hr = h2.communicate()[0]
-print hr		#display the process
+testfile = h2.communicate()[0]
+print testfile		#display the process
 time.sleep(2)
-####GET THE MARKER OF RESULT OF TEST
-#  if ff is True:
-# 	print "True!!!!!!!!!!!!!!!!"
-# else:
-# 	print "False!!!!!!!!!!!!!!"
 
 #c1 Clean created dir and file on the NFSv4 server
 print "    [Clean created directory and file on the NFSv4 server] : "
@@ -205,10 +200,12 @@ time.sleep(2)
 
 #####################LOG AND PRINT RESULTS################################
 #print "Test #1 [PASSED]"
-print """
+####GET THE MARKER OF RESULT OF TEST
+if testdir.find("THE TEST HAS BEEN PASSED") and testfile.find("THE TEST HAS BEEN PASSED"):  #if successful test max ACEs for dir and file
+    print """
 ##########################################################################
 
-Test #1 [PASSED]
+Test #1 NFSv4 maximum number of ACEs [Extended ACLs for UNIX] is [PASSED]
 
     In order to get more information:
     ./logs/log_run.log" - execution log (detailed information)
@@ -216,5 +213,15 @@ Test #1 [PASSED]
 
 ##########################################################################
 """
-#print "Test #1 [FAILED]"
-#log test results
+else:
+    print """
+    ##########################################################################
+
+Test #1 NFSv4 maximum number of ACEs [Extended ACLs for UNIX] is [FAILED]
+
+    In order to get more information:
+    ./logs/log_run.log" - execution log (detailed information)
+    ./logs/log_result.log - log with the results (PASSED, FAILED)
+
+##########################################################################
+"""
