@@ -34,12 +34,14 @@ Test #1: NFSv4 - Test the maximum number of ACEs (Access Control Entries)
 #i1 Set, check server hostname
 print "In order to run the test enter the required data: \n"
 print "    1) Hostname of the NFSv4 server: "
+print
 server = hostnamecheck()			#input, check resolved hostname of the server (display)
 print "    NFSv4 server: ",server   #server - NFS server's hostname
 print
 
 #i2 Set, check (from client to server via "showmount -e server") path of exportfs on server
 print "    2) Path to the exported directory on NFSv4 server (/nfsdir, /mnt/nfs, ...): "
+print
 nfs_exp = nfsexpcheck(server)		#nfs_exp - dir for export (will be mounted on client side)
 print "    NFSv4 exported dir: ",nfs_exp #view /nfs, /dirnfs, ...
 print
@@ -52,49 +54,72 @@ a2 = subprocess.Popen(['/usr/bin/rsh', server, "python", "-", "-p", nfs_exp], st
 a1.stdout.close()
 server_fs = a2.communicate()[0]			#server_fs - fs type for export dir "nfs_exp"
 #Set limits according fs type
-if server_fs == str("xfs"):
+if server_fs.find("xfs") !=-1:
 	aces_max = 25
-else:
+elif server_fs.find("ext") !=-1:
 	aces_max = 32
+else:
+	aces_max = 30 # if not xfs or ext2, ext3, ext4 then 30 *** necessary to organize check for other fs types
+print
 print "    NFSv4 server fs type for exp dir ",nfs_exp," : ",server_fs
 print "    ACEs max count (UNIX extended ACLs): ", aces_max
 print
+time.sleep(2)
 
 #i4 Set the number of users and groups to be created on the NFSv4 server
 print "    4) The number of users and groups to be created on the NFSv4 server: "
-users = str(raw_input("    The number of users [input] : "))
-groups = str(raw_input("    The number of groups [input] : "))
+#Check input data (the number of users) in range [aces_max, 999]
+print
+while True:
+   try:
+       users_n = int(raw_input("    The number of users [" + str(aces_max) +"..999] [input] : "))
+       if users_n not in range(aces_max, 1000):
+           raise ValueError("    Error! Enter the correct value.")
+       break
+   except ValueError as err_users_n:
+       print err_users_n
+users = str(users_n)
+#Check input data (the number of users) in range [aces_max, 999]
+while True:
+   try:
+       groups_n = int(raw_input("    The number of groups [" + str(aces_max) +"..999] [input] : "))
+       if groups_n not in range(aces_max, 1000):
+           raise ValueError("    Error! Enter the correct value.")
+       break
+   except ValueError as groups_n:
+       print groups_n
+groups = str(groups_n)
 
 #i5 Set the name of test directory and file which will be created on the export directory on the NFSv4 server
 print
 print "    5) The directory and file which will be created on the export directory on the NFSv4 server: "
-nfs_dir = str(raw_input("    Test directory in NFSv4 server export dir [input] : "))
+print
+nfs_dir = str(raw_input("    Test directory (folder, dir, ...) in NFSv4 server export dir [input] : "))
 path_nfs_dir = nfs_exp + "/" + nfs_dir  #full path to create dir 			mkdir -p "path_nfs_dir"
-nfs_file = str(raw_input("    Test file in NFSv4 server export dir [input] : "))
+nfs_file = str(raw_input("    Test file (file, goal, ...) in NFSv4 server export dir [input] : "))
 path_nfs_file = nfs_exp + "/" + nfs_file  #full path to create file	 		touch "path_nfs_file"
 
 #Print test intro info
-time.sleep(1)
+time.sleep(2)
 print """
 Great! The input data have been received!
-After 7 seconds the test will be started...
+After 5 seconds the test will be started...
 
 =========================================================================
 """
-time.sleep(7)
+time.sleep(5)
 
 
 ################RUN TEST###########################################
 
 #t1 Get client and server info
 gethostinfo(server)
-time.sleep(3)
+time.sleep(2)
 print
 
 #t2 Ping from client to server with 5 counts
 pinger(str(server))
-time.sleep(3)
-print
+time.sleep(2)
 print
 
 #t3 Create groups on the NFSv4 server
@@ -105,8 +130,9 @@ b2 = subprocess.Popen(["/usr/bin/rsh", server, "python", "-", "-g", groups], std
 b1.stdout.close()
 groups_new = b2.communicate()[0]			#creating groups
 print groups_new							#display the process of creating groups
+time.sleep(2)
 
-#t4 Create groups on the NFSv4 server
+#t4 Create users on the NFSv4 server
 print "    [Create", users, "users on the NFSv4 server] : "
 print
 c1 = subprocess.Popen(["cat", "./generator_p.py", ], stdout=subprocess.PIPE)
@@ -114,32 +140,60 @@ c2 = subprocess.Popen(["/usr/bin/rsh", server, "python", "-", "--gg", "-u", user
 c1.stdout.close()
 users_new = c2.communicate()[0]				#creating users
 print users_new								#display the process of creating users
+time.sleep(2)
 
 #t5 Create the test directory and test file in the export directory on the NFSv4 server
-print "    [Create the directory on the NFSv4 server export directory] : "
+print "    [Create the directory and file on the NFSv4 server export directory] : "
 d1 = subprocess.Popen(["/usr/bin/rsh", server, "mkdir", "-p", path_nfs_dir], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 d1.communicate()
-print "    Test directory on the [" + server + "] : " + path_nfs_dir + " has been created"
 print
-print "    [Create the file on the NFSv4 server export directory] : "
+print "    Test directory on the [" + server + "] : " + path_nfs_dir + " has been created"
 e1 = subprocess.Popen(["/usr/bin/rsh", server, "touch ", path_nfs_file], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 e1.communicate()
 print "    Test file on the [" + server + "] : " + path_nfs_file + " has been created"
 print
+time.sleep(2)
+
+#t6 Run the core of test #1  (ACEs limits on fs) which consists of 2 parts a) ACEs limits fo dir b) ACEs limits for file
+print "    [Test the maximum number of ACEs for directory] : "
+print
+path_nfs_dir_s = str(path_nfs_dir)
+path_nfs_file_s = str(path_nfs_file)
+aces_max_s = str(aces_max)
+f1 = subprocess.Popen(["cat", "./generator_p.py", ], stdout=subprocess.PIPE)
+f2 = subprocess.Popen(["/usr/bin/rsh", server, "python", "- ", "-p", path_nfs_dir_s, "-m", aces_max_s], stdin=f1.stdout, stdout=subprocess.PIPE)
+f1.stdout.close()
+fr = f2.communicate()[0]
+print fr		#display the process
+time.sleep(2)
+
+print "    [Test the maximum number of ACEs for file] : "
+print
+h1 = subprocess.Popen(["cat", "./generator_p.py", ], stdout=subprocess.PIPE)
+h2 = subprocess.Popen(["/usr/bin/rsh", server, "python", "- ", "-p", path_nfs_file_s, "-m", aces_max_s], stdin=h1.stdout, stdout=subprocess.PIPE)
+h1.stdout.close()
+hr = h2.communicate()[0]
+print hr		#display the process
+time.sleep(2)
+####GET THE MARKER OF RESULT OF TEST
+#  if ff is True:
+# 	print "True!!!!!!!!!!!!!!!!"
+# else:
+# 	print "False!!!!!!!!!!!!!!"
 
 #c1 Clean created dir and file on the NFSv4 server
 print "    [Clean created directory and file on the NFSv4 server] : "
+print
 j1 = subprocess.Popen(["/usr/bin/rsh", server, "rm", "-rf", path_nfs_dir], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 j1.communicate()
 print "    Test directory on the [" + server + "] : ", path_nfs_dir, " has been removed"
-print
 k1 = subprocess.Popen(["/usr/bin/rsh", server, "rm", "-rf", path_nfs_file], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 k1.communicate()
 print "    Test file on the [" + server + "] : ", path_nfs_file, " has been removed"
 print
+time.sleep(2)
 
 #c2 Clean created groups and users on the NFSv4 server
-print
 print "    [Clean created users and groups on the NFSv4 server] : "
 print
 z1 = subprocess.Popen(["cat", "./cleaner_p.py", ], stdout=subprocess.PIPE)
@@ -147,7 +201,7 @@ z2 = subprocess.Popen(["/usr/bin/rsh", str(server), "python", "-", "--full"], st
 z1.stdout.close()
 full_del = z2.communicate()[0]
 print full_del								#display the process of cleaning the previously created groups and users
-
+time.sleep(2)
 
 #####################LOG AND PRINT RESULTS################################
 #print "Test #1 [PASSED]"
@@ -162,7 +216,5 @@ Test #1 [PASSED]
 
 ##########################################################################
 """
-
 #print "Test #1 [FAILED]"
-
 #log test results
