@@ -168,7 +168,7 @@ class full_generator(object):
 				print "    ACE #",i+5,": setfacl -m u:" + random_user + ":" + random_rights + " " + test_path + " - FAILED!!!"
 				print cmd
 				print "    Reached the maximum number of ACEs: " + str(max_aces)
-				return True			#The test has been passed
+				print "THE TEST HAS BEEN PASSED!!!" 			#The test has been passed
 			else:
 				print "    ACE #",i+5,": setfacl -m u:" + random_user + ":" + random_rights + " " + test_path
 				# return False		#The test has been failed
