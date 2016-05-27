@@ -76,7 +76,7 @@ class full_generator(object):
 #Generate file set ("nb" of files) in directory /test_path
 	def create_files(self, test_path, nb):
 		for i in range(1,nb+1):
-			fname = 'nfs_file' + str(i)
+			fname = "nfs_file" + str(i)
 			cmd = commands.getoutput("touch " + test_path + "/" + fname)
 			self.files_list.append(fname)
 			print "    File: " + test_path + "/" + fname + " / has been created"
@@ -119,8 +119,8 @@ class full_generator(object):
 # List of files
 	files_list = []  # empty list of files for start
 	def get_files(self, test_path):
-		cmd = commands.getoutput('ls ' + test_path)
-		splitedline = cmd.split('\n')
+		cmd = commands.getoutput("ls " + test_path)
+		splitedline = cmd.split("\n")
 		for i in range(len(splitedline) - 1):
 			name_true = re.match("nfs_file", splitedline[i])
 			if name_true != None:
@@ -132,11 +132,11 @@ class full_generator(object):
 		out_str = ""
 		while (out_str == ""):
 			if random.randint(0, 1) == 1:
-				out_str += 'x'
+				out_str += "x"
 			if random.randint(0, 1) == 1:
-				out_str += 'w'
+				out_str += "w"
 			if random.randint(0, 1) == 1:
-				out_str += 'r'
+				out_str += "r"
 		return out_str
 
 #####Test the maximum number of ACEs (Access Control Entries) for dir and file (path) according to the restrictions############################
@@ -201,5 +201,4 @@ if options.p is not None and options.m > 0:
 	full_generator().test_max_aces(options.p,options.m)		# -p PATH TO TEST FILE OR DIR 	-m MAX ACEs
 
 if options.d is not None and options.f > 0:
-	full_generator().create_files(options.d,options.f)		# -m PATH TO EXP DIR	-f COUNT OF FILES
-
+	full_generator().create_files(options.d,options.f)		# -d PATH TO EXP DIR	-f COUNT OF FILES
