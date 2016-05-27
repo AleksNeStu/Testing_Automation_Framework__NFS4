@@ -31,7 +31,6 @@ class full_generator(object):
 			gid = str(7000 + i)
 			self.create_groups(gname, gid)
 
-
 #Generate groups according the data from "create_groups_n" [consistently in range]
 #groupadd -f -g 7000(range) nfs_group(range)
 # -f - force	-g GID
@@ -40,6 +39,7 @@ class full_generator(object):
 		print "    Group: " + gname + " / GID: " + gid + " / has been created"
 		if cmd != "":
 			print "    Group: " + gname + " / GID: " + gid + " / with errors"
+			print cmd
 
 #Generate range for users (user names, uid (7000 + g range) according input data "u - number of users"
 #UID - values between 0 and 999 are typically reserved for system accounts
@@ -66,13 +66,22 @@ class full_generator(object):
 		print "    User: " + uname + " / UID: " + uid + " / GID: " + rgname + " / has been created"
 		if cmd != "":
 			print "    User: " + uname + " / UID: " + uid + " / GID: " + rgname + " / with errors"
+			print cmd
 
+#Generate file set ("nb" of files) in directory /test_path
+	def create_files(self, test_path, nb):
+		for i in range(1,nb+1):
+			fname = 'nfs_file' + str(i)
+			cmd = commands.getoutput("touch " + test_path + "/" + fname)
+			self.files_list.append(fname)
+			print "    File: " + test_path + "/" + fname + " / has been created"
+			if cmd != "":
+				print "    File: " + test_path + "/" + fname + " / with errors"
+				print cmd
 
-########################Get list of groups created for testing############################
+#Get list of groups created for testing
 # List of groups
 	groups_list = []  # empty list of groups for start
-	groups_list_len = len(groups_list)
-
 	def get_groups(self):
 		fin = open("/etc/group", "r")
 		strs = fin.readlines()
@@ -85,28 +94,10 @@ class full_generator(object):
 				self.groups_list.append([gname, gid])
 		fin.close()
 
-	def get_groups_n(self, gg):
-		fin = open("/etc/group","r")
-		strs = fin.readlines()
-		n = 0
-		for str in strs:
-			splitedline = str.split(':')
-			gname = splitedline[0]
-			gid = splitedline[2]
-			name_true = re.match("nfs_group", gname)
-			if name_true != None:
-				self.groups_list.append([gname, gid])
-				n = n + 1
-			if n == gg:
-				break
-		fin.close()
-
-########################Get list of users created for testing############################
+#Get list of users created for testing
 #Get the list of all users from file /etc/passwd
 # List of users
 	users_list = []  # empty list of users for start
-	users_list_len = len(users_list)
-
 	def get_users(self):
 		f = open("/etc/passwd", "r")
 		strs = f.readlines()
@@ -119,23 +110,18 @@ class full_generator(object):
 				self.users_list.append(uname)
 		f.close()
 
-	def get_users_n(self, gu):
-		f = open("/etc/passwd", "r")
-		strs = f.readlines()
-		n = 0
-		for str in strs:
-			splitedline = str.split(":")
-			uname = splitedline[0]
-			gid = splitedline[3]
-			name_true = re.match("nfs_user", uname)			#nfs_userxxx - created by generator
+#Get list of files created for testing
+# List of files
+	files_list = []  # empty list of files for start
+	def get_files(self, test_path):
+		cmd = commands.getoutput('ls ' + test_path)
+		splitedline = cmd.split('\n')
+		for i in range(len(splitedline) - 1):
+			name_true = re.match("nfs_file", splitedline[i])
 			if name_true != None:
-				self.users_list.append(uname)
-				n = n + 1
-			if n == gu:
-				break
-		f.close()
+				self.files_list.append(splitedline[i])
 
-############UNIX, LINUX file permissions random generator "rw", "rwx", "x", ..
+#UNIX, LINUX file permissions random generator "rw", "rwx", "x", ..
 # "r" - read permission / "w" - write permission / "x" - execute permission
 	def random_rwx(self):
 		out_str = ""
@@ -168,37 +154,47 @@ class full_generator(object):
 				print "    ACE #",i+5,": setfacl -m u:" + random_user + ":" + random_rights + " " + test_path + " - FAILED!!!"
 				print cmd
 				print "    Reached the maximum number of ACEs: " + str(max_aces)
-				print "THE TEST HAS BEEN PASSED!!!" 			#The test has been passed
+				print "    THE TEST HAS BEEN PASSED!!!" 			#The test has been passed
+				break
 			else:
 				print "    ACE #",i+5,": setfacl -m u:" + random_user + ":" + random_rights + " " + test_path
-				# return False		#The test has been failed
 
 
 # add options
 parser = OptionParser()
 parser.add_option("--gu", action="store_true", dest="gu", default=False, help="Get list of users created for testing")
 parser.add_option("--gg", action="store_true", dest="gg", default=False, help="Get list of groups created for testing")
+parser.add_option("--gf", action="store_true", dest="gf", default=False, help="Get list of files created for testing")
 parser.add_option("-u", "--users", dest="u", type="int", help="Generate u users for testing")
 parser.add_option("-g", "--groups", dest="g", type="int", help="Generate g groups for testing")
+parser.add_option("-f", "--files", dest="f", type="int", help="Generate f files for testing in -d dir")
 # parser.add_option("-d", "--dir", dest="d", type="str", help="Create the dir in the given NFS exp dir for testing")
 # parser.add_option("-f", "--file", dest="f", type="str", help="Create the file in the given NFS exp dir for testing")
 parser.add_option("-p", "--path", dest="p", type="str", help="Path to test dir or file for set ACEs")
 parser.add_option("-m", "--max", dest="m", type="int", help="Max count of ACEs for dir or file according of type of fs")
+parser.add_option("-d", "--dir", dest="d", type="str", help="Path to export dir for creating -f files")
 (options, args) = parser.parse_args()
 
 #use options
 if options.gu is True:
 	full_generator().get_users()					# --gu GET USERS
+
 if options.gg is True:
 	full_generator().get_groups()					# --gg GET GROUPS
+
+if options.gf is True:
+	full_generator().get_groups()					# --gf GET FILES
 #If the value u > 0 and list of users have gotten (Run only after -g --gg)
+
 if options.u > 0 and options.gg is not False:
-	full_generator().create_users_n(options.u)		# -u CREATE USERS
+	full_generator().create_users_n(options.u)		# -u CREATE -u USERS
+
 if options.g > 0:
-	full_generator().create_groups_n(options.g)		# -g CREATE GROUPS
-# if options.d is not int:
-# 	full_generator().create_nfs_dir(options.d)				# -d CREATE DIR in EXP DIR
-# if options.f is not  int:
-# 	full_generator().create_nfs_file(options.f)				# -f CREATE FILE in EXP DIR
+	full_generator().create_groups_n(options.g)		# -g CREATE -g GROUPS
+
 if options.p is not None and options.m > 0:
-	full_generator().test_max_aces(options.p,options.m)		# -p PATH OF TEST FILE OR DIR 	-m MAX ACEs
+	full_generator().test_max_aces(options.p,options.m)		# -p PATH TO TEST FILE OR DIR 	-m MAX ACEs
+
+if options.d is not None and options.f > 0:
+	full_generator().create_files(options.d,options.f)		# -m PATH TO EXP DIR	-f COUNT OF FILES
+
