@@ -139,7 +139,7 @@ class full_generator(object):
 				out_str += "r"
 		return out_str
 
-#####Test the maximum number of ACEs (Access Control Entries) for dir and file (path) according to the restrictions############################
+#Test the maximum number of ACEs (Access Control Entries) for dir and file (path) according to the restrictions
 # standart permitions (4 ACEs):
 # user::***
 # group::***
@@ -156,14 +156,115 @@ class full_generator(object):
 			check = cmd.find("long")	   # check the message "Argument list too long" the limit ACEs
 			if check != -1 and i+4 == max_aces:
 				# i+5 = 3 (standart) + 1 (mask) + 1 (for start with 1 not 0)
-				print "    ACE #",i+5,": setfacl -m u:" + random_user + ":" + random_rights + " " + test_path + " - FAILED!!!"
+				print "    ACE #",i+5,": setfacl -m u:" + random_user + ":" + random_rights + " " + test_path + " - ERROR!!!"
 				print cmd
 				print "    Reached the maximum number of ACEs: " + str(max_aces)
-				print "    THE TEST HAS BEEN PASSED!!!" 			#The test has been passed
+				print "    THE TEST #1 HAS BEEN PASSED!!!" 			#The test has been passed
 				break
 			else:
 				print "    ACE #",i+5,": setfacl -m u:" + random_user + ":" + random_rights + " " + test_path
 
+#Stress test for a large number of random operations setting ACEs [Extended ACLs for UNIX]
+# Serial setup "cycles" times the option -m (--modify) to modify the ACLs of NFS server export directory
+# plus
+# Serial setup "cycles" times the option -x (--remove) to remove the ACLs of NFS server export directory
+# In addition is exceeding the permissible value of the amount ACEs for file system
+	def test_stress_acl_1(self, test_path, cycles):  # test_path - to the test dir (export dir on NFS server)  # cycles - the number of cycles
+		commands.getoutput("/usr/bin/setfacl -b " + test_path) #remove all extended ACL entries before start of actions
+		self.get_users()  # get users from /ets/password file
+		u = self.users_list  # get users list
+		for i in range(1, cycles+1):
+			random_user = u[random.randint(0,len(u)-1)] #get random and may be repeating users list
+			random_rights = self.random_rwx()  # get random rights rw, rwx, x, ...
+			cmd1 = commands.getoutput("/usr/bin/setfacl -m u:" + random_user + ":" + random_rights + " " + test_path)
+			cmd2 = commands.getoutput("/usr/bin/setfacl -x u:" + random_user + " " + test_path)
+			check1 = cmd1.find("error")  # check the message "error"
+			check2 = cmd2.find("error")  # check the message "error"
+			if i == cycles:					#if cysles have finished and not error message that test has been PASSED
+				print "    ACE #", i, ": setfacl -m u:" + random_user + ":" + random_rights + " " + test_path
+				print "                setfacl -x u:" + random_user + " " + test_path
+				print
+				print "    THE TEST #2 PART 1 HAS BEEN PASSED!!!"  # The test has been passed
+				break
+			elif check1 != -1 or check2 != -1:  #check if error exist in process setfacl -m and setfacl -x
+				print "    ACE #", i, ": setfacl -m u:" + random_user + ":" + random_rights + " " + test_path
+				print "                setfacl -x u:" + random_user + " " + test_path
+				print cmd1; print cmd2
+				print "    THE TEST #2 PART 1 HAS BEEN FAILED!!!"  # The test has been failed
+				break
+			else:										 # Normal process setfacl -m and setfacl -x
+				print "    ACE #", i, ": setfacl -m u:" + random_user + ":" + random_rights + " " + test_path
+				print "                setfacl -x u:" + random_user + " " + test_path
+			# to print every 100th element to to reduce the information on the screen
+			# for e in range(1, cycles+1)[99::100]:
+			# 	print e
+
+	# group = self.gList[random.randint(0, len(self.gList) - 1)][0]
+
+	# # """ Create a random ACL operation (delete / remove / modify on user / group ) """
+	# def randomOp(self, path):
+	# 	a = random.randint(1, 4)  # 1 .. 9
+	# 	mode = self.createRandomMode()
+	# 	file = self.fList[random.randint(0, len(self.fList) - 1)]
+	# 	if a == 1:  # creation/modification
+	# 		user = self.uList[random.randint(0, len(self.uList) - 1)]
+	# 		u = commands.getoutput('setfacl -m u:' + user + ':' + mode + " " + path + "/" + file)
+	# 		print 'setfacl -m u:' + user + ':' + mode + " " + path + "/" + file
+	# 		if u != "":
+	# 			print u
+	#
+	# 	if a == 2:  # with group
+	# 		group = self.gList[random.randint(0, len(self.gList) - 1)][0]
+	# 		u = commands.getoutput('setfacl -m g:' + group + ':' + mode + " " + path + "/" + file)
+	# 		print 'setfacl -m g:' + group + ':' + mode + " " + path + "/" + file
+	# 		if u != "":
+	# 			print u
+	#
+	# 	if a == 3:  # deletation
+	# 		user = self.uList[random.randint(0, len(self.uList) - 1)]
+	# 		u = commands.getoutput('setfacl -x u:' + user + " " + path + "/" + file)
+	# 		print 'setfacl -x u:' + user + " " + path + "/" + file
+	# 		if u != "":
+	# 			print u
+	#
+	# 	if a == 4:  # with group
+	# 		group = self.gList[random.randint(0, len(self.gList) - 1)][0]
+	# 		u = commands.getoutput('setfacl -x g:' + group + " " + path + "/" + file)
+	# 		print 'setfacl -x g:' + group + " " + path + "/" + file
+	# 		if u != "":
+	# 			print u
+	#
+	# 	# request on a unexisting group
+	# 	if a == 5:
+	# 		group = self.createOneNameRandomLength(16)
+	# 		print 'setfacl -x g:' + group + " " + path + "/" + file
+	# 		u = commands.getoutput('setfacl -x g:' + group + " " + path + "/" + file)
+	# 		if u != "":
+	# 			print u
+	#
+	# 	if a == 6:
+	# 		user = self.createOneNameRandomLength(16)
+	# 		u = commands.getoutput('setfacl -x u:' + user + " " + path + "/" + file)
+	# 		if u != "":
+	# 			print u
+	#
+	# 	if a == 7:  # creation/modification
+	# 		user = self.createOneNameRandomLength(16)
+	# 		u = commands.getoutput('setfacl -m u:' + user + ':' + mode + " " + path + "/" + file)
+	# 		if u != "":
+	# 			print u
+	#
+	# 	if a == 8:  # with group
+	# 		group = self.createOneNameRandomLength(16)
+	# 		u = commands.getoutput('setfacl -m g:' + group + ':' + mode + " " + path + "/" + file)
+	# 		if u != "":
+	# 			print u
+	#
+	# 	if a == 9:  # Copying the ACL of one file to another
+	# 		file2 = self.fList[random.randint(0, len(self.fList) - 1)]
+	# 		u = commands.getoutput('getfacl ' + path + "/" + file + "| setfacl --set-file=- " + path + "/" + file2)
+	# 		if u != "":
+	# 			print u
 
 # add options
 parser = OptionParser()
@@ -173,6 +274,7 @@ parser.add_option("--gf", action="store_true", dest="gf", default=False, help="G
 parser.add_option("-u", "--users", dest="u", type="int", help="Generate u users for testing")
 parser.add_option("-g", "--groups", dest="g", type="int", help="Generate g groups for testing")
 parser.add_option("-f", "--files", dest="f", type="int", help="Generate f files for testing in -d dir")
+parser.add_option("-c", "--cycles", dest="c", type="int", help="The number of loops in the test")
 # parser.add_option("-d", "--dir", dest="d", type="str", help="Create the dir in the given NFS exp dir for testing")
 # parser.add_option("-f", "--file", dest="f", type="str", help="Create the file in the given NFS exp dir for testing")
 parser.add_option("-p", "--path", dest="p", type="str", help="Path to test dir or file for set ACEs")
@@ -202,3 +304,11 @@ if options.p is not None and options.m > 0:
 
 if options.d is not None and options.f > 0:
 	full_generator().create_files(options.d,options.f)		# -d PATH TO EXP DIR	-f COUNT OF FILES
+
+if options.d is not None and options.c > 0:
+	full_generator().test_stress_acl_1(options.d, options.c)  # -d PATH TO EXP DIR	-c NUMBER OF LOOPS IN TEST
+
+# test.getNUserList(options.nbusers)
+# test.getNGroupList(options.nbgroups)
+# for i in range (options.nloop):
+# 	test.randomOp(options.path)
