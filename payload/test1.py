@@ -123,8 +123,6 @@ time.sleep(3)
 print
 
 #t2 Hidden clean the data from previous run tests
-print "    [Create", groups, "groups on the NFSv4 server] : "
-print
 a1 = subprocess.Popen(["cat", "./cleaner_p.py", ], stdout=subprocess.PIPE)
 a2 = subprocess.Popen(["/usr/bin/rsh", server, "python", "-", "-c", nfs_exp_s], stdin=a1.stdout, stdout=subprocess.PIPE)
 a1.stdout.close()
