@@ -12,8 +12,10 @@ Opportunities:
 -p - Path to test dir or file for set ACEs
 -m - Max count of ACEs for dir or file according of type of fs
 -d - Path to export dir for creating -f files
+-c - The number of loops in the test
 
-example: python ./generator_p.py -g 60 --gg -u 76
+LOCAL: python ./generator_p.py -g 60 --gg -u 76
+REMOTE: cat ./generator_p.py | /usr/bin/rsh rhel python - -g 60 --gg -u 76
 
 @Developed by AleksNeStu
 
