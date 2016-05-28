@@ -124,7 +124,7 @@ class full_cleaner(object):
 		self.files_list = []
 
 #Hiden clean data (гemove users, groups, files, ACEs)
-	def clean_full(self, clean_path): #clean_path - export dir on NFS server
+	def clean_full_h(self, clean_path): #clean_full (hidden)
 		commands.getoutput("/usr/bin/setfacl -R -b " + clean_path) #ACLs del
 		commands.getoutput("/usr/bin/setfacl -R -k " + clean_path)  # ACLs (defauls) del
 		commands.getoutput('/usr/bin/find ' + clean_path + ' -type f -name "nfs*" -exec rm -f {} \;') #files del
@@ -132,6 +132,20 @@ class full_cleaner(object):
 		self.get_groups()
 		self.clean_users_h()  #users del
 		self.clean_groups_h() #groups del
+
+#Hiden clean data (гemove users, groups, files, ACEs)
+	def clean_full(self, clean_path): #clean_full (hidden)
+		print
+		cmd1 = commands.getoutput("/usr/bin/setfacl -R -b " + clean_path)  # ACLs del
+		cmd2 = commands.getoutput("/usr/bin/setfacl -R -k " + clean_path)  # ACLs (defauls) del
+		print "    Created ACEs have been deleted from export dir and files in it on the NFS server."
+		cmd3 = commands.getoutput('/usr/bin/find ' + clean_path + ' -type f -name "nfs*" -exec rm -f {} \;') #files del
+		print "    Created files have been deleted from export dir on the NFS server."
+		self.get_users()
+		self.get_groups()
+		self.clean_users_h()  #users del
+		self.clean_groups_h() #groups del
+		print "    Created users and groups have been deleted from the NFS server."
 
 # add options in
 parser = OptionParser()
@@ -143,7 +157,8 @@ parser.add_option("--cg", action="store_true", dest="cg", default=False, help="C
 parser.add_option("--cf", action="store_true", dest="cf", default=False, help="Clean all files created for testing")
 parser.add_option("--full", action="store_true", dest="full", default=False, help="Full get and clean data created for testing")
 parser.add_option("-d", "--dir", dest="d", type="str", help="Path to export dir for creating files")
-parser.add_option("-c", "--clean", dest="c", type="str", help="Path to dir for removing files and start action remove users, groups, files, ACEs")
+parser.add_option("-c", "--clean", dest="c", type="str", help="Path to dir for removing files and start action remove users, groups, files, ACEs - Hidden")
+parser.add_option("-r", "--remove", dest="r", type="str", help="Path to dir for removing files and start action remove users, groups, files, ACEs")
 (options, args) = parser.parse_args()
 
 #use options
@@ -172,4 +187,7 @@ if options.full is True:					# --full FULL GET and CLEAN (USERS,GROUPS)
 	full_cleaner().clean_groups()
 
 if options.c is not None:					# -c = path to dir FULL HIDDEN CLEAN (USERS,GROUPS, ACES, FILES)
-	full_cleaner().clean_full(options.c)
+	full_cleaner().clean_full_h(options.c)
+
+if options.r is not None:					# -r = path to dir FULL CLEAN (USERS,GROUPS, ACES, FILES)
+	full_cleaner().clean_full(options.r)

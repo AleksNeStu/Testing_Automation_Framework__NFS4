@@ -25,6 +25,7 @@ import time
 import random  						#Random variable generators
 import commands	 					#Execute shell commands via os.popen() and return status, output
 import re		 					#Support for regular expressions (RE)
+from compiler.syntax import check
 from optparse import OptionParser	#Parser for command line options
 
 class full_generator(object):
@@ -127,7 +128,6 @@ class full_generator(object):
 			name_true = re.match("nfs_file", splitedline[i])
 			if name_true != None:
 				self.files_list.append(splitedline[i])
-		print self.files_list
 
 #UNIX, LINUX file permissions random generator "rw", "rwx", "x", ..
 # "r" - read permission / "w" - write permission / "x" - execute permission
@@ -184,20 +184,17 @@ class full_generator(object):
 			check1 = cmd1.find("error")  # check the message "error"
 			check2 = cmd2.find("error")  # check the message "error"
 			if i == cycles:					#if cysles have finished and not error message that test has been PASSED
-				print "    ACE #", i, ": setfacl -m u:" + random_user + ":" + random_rights + " " + test_path
-				print "                setfacl -x u:" + random_user + " " + test_path
+				print "    ACE #", i, ": setfacl -m u:" + random_user + ":" + random_rights + " " + test_path + " & setfacl -x u:" + random_user + " " + test_path
 				print
 				print "    THE TEST #2 PART 1 HAS BEEN PASSED!!!"  # The test has been passed
 				break
 			elif check1 != -1 or check2 != -1:  #check if error exist in process setfacl -m and setfacl -x
-				print "    ACE #", i, ": setfacl -m u:" + random_user + ":" + random_rights + " " + test_path
-				print "                setfacl -x u:" + random_user + " " + test_path
+				print "    ACE #", i, ": setfacl -m u:" + random_user + ":" + random_rights + " " + test_path + " & setfacl -x u:" + random_user + " " + test_path
 				print cmd1; print cmd2
 				print "    THE TEST #2 PART 1 HAS BEEN FAILED!!!"  # The test has been failed
 				break
 			else:										 # Normal process setfacl -m and setfacl -x
-				print "    ACE #", i, ": setfacl -m u:" + random_user + ":" + random_rights + " " + test_path
-				print "                setfacl -x u:" + random_user + " " + test_path
+				print "    ACE #", i, ": setfacl -m u:" + random_user + ":" + random_rights + " " + test_path + " & setfacl -x u:" + random_user + " " + test_path
 			# to print every 100th element to to reduce the information on the screen
 			# for e in range(1, cycles+1)[99::100]:
 			# 	print e
@@ -205,6 +202,7 @@ class full_generator(object):
 # Stress test for a large number of random operations setting ACEs [Extended ACLs for UNIX]
 # Random operations with setfacl: random options (actions),
 	def test_stress_acl_2(self, test_path, files, cycles):
+		print
 		self.create_files(test_path,files)	# create files
 		self.get_files(test_path)  			# get files from nfs export dir
 		f = self.files_list  				# get files list
@@ -212,6 +210,7 @@ class full_generator(object):
 		u = self.users_list  				# get users list
 		self.get_groups() 					# get groups from /etc/group file
 		g = self.groups_list  				# get groups list
+		print
 		for i in range(1, cycles + 1):
 			action = random.randint(1, 6)  						# get random action from 1 .. 6
 			random_user = u[random.randint(0, len(u) - 1)]		# get random user from list
@@ -219,40 +218,50 @@ class full_generator(object):
 			random_file = f[random.randint(0, len(f) - 1)] # get random file from list
 			if action == 1:  # Create (modification) random ACE for random user for random file
 				cmd = commands.getoutput("setfacl -m u:" + random_user + ":" + random_rights + " " + test_path + "/" + random_file)
-				print "    setfacl -m u:" + random_user + ':' + random_rights + " " + test_path + "/" + random_file
+				print "    ACE #", i, ": setfacl -m u:" + random_user + ':' + random_rights + " " + test_path + "/" + random_file
 				if cmd != "":
 					print cmd
 			if action == 2:  # Remove ACE for random user for random file
 				random_user = u[random.randint(0, len(u) - 1)]
 				cmd = commands.getoutput("setfacl -x u:" + random_user + " " + test_path + "/" + random_file)
-				print "    setfacl -x u:" + random_user + " " + test_path + "/" + random_file
+				print "    ACE #", i, ": setfacl -x u:" + random_user + " " + test_path + "/" + random_file
 				if cmd != "":
 					print cmd
 			if action == 3:  # Create (modification) random ACE for random group for random file
 				random_group = g[random.randint(0, len(g) - 1)][0]
 				cmd = commands.getoutput("setfacl -m g:" + random_group + ":" + random_rights + " " + test_path + "/" + random_file)
-				print "    setfacl -m g:" + random_group + ":" + random_rights + " " + test_path + "/" + random_file
+				print "    ACE #", i, ": setfacl -m g:" + random_group + ":" + random_rights + " " + test_path + "/" + random_file
 				if cmd != "":
 					print cmd
 			if action == 4:  # Remove ACE for random user for random group
 				random_group = g[random.randint(0, len(g) - 1)][0]
 				cmd = commands.getoutput("setfacl -x g:" + random_group + " " + test_path + "/" + random_file)
-				print "    setfacl -x g:" + random_group + " " + test_path + "/" + random_file
+				print "    ACE #", i, ": setfacl -x g:" + random_group + " " + test_path + "/" + random_file
 				if cmd != "":
 					print cmd
 			if action == 5:  # Copying the random ACE of one file to random ACE another file
 				random_file_2 = f[random.randint(0, len(f) - 1)]
-				cmd = commands.getoutput("getfacl " + test_path + "/" + random_file + " | setfacl --set-file=- " + test_path + "/" + random_file_2)
-				print "    getfacl " + test_path + "/" + random_file + " | setfacl --set-file=- " + test_path + "/" + random_file_2
+				cmd = commands.getoutput("cd " + test_path + "; getfacl " + random_file + " | setfacl --set-file=- " + test_path + "/" + random_file_2)
+				print "    ACE #", i, ": getfacl " + test_path + "/" + random_file + " | setfacl --set-file=- " + test_path + "/" + random_file_2
 				if cmd != "":
 					print cmd
 			if action == 6:  # Create random default ACEs for export dir (user,group,other)
 				random_rights2 = self.random_rwx()
 				random_rights3 = self.random_rwx()
 				cmd = commands.getoutput("setfacl -d -m u::" + random_rights + ",g::" + random_rights2 + ",o::" + random_rights3 + " " + test_path)
-				print "    setfacl -d -m u::" + random_rights + ",g::" + random_rights2 + ",o::" + random_rights3 + " " + test_path
+				print "    ACE #", i, ": setfacl -d -m u::" + random_rights + ",g::" + random_rights2 + ",o::" + random_rights3 + " " + test_path
 				if cmd != "":
 					print cmd
+		print
+		print "    [Check the status of a NFS service on the NFSv4 server after stress test] :"
+		print
+		check = commands.getoutput("/usr/bin/systemctl status nfs.service") #check the status of the NFS server services after the stress test
+		print check
+		print
+		if check.find("active (exited)"):
+			print "    THE TEST #2 PART 2 HAS BEEN PASSED!!!"  # The test has been passed
+		else:
+			print "    THE TEST #2 PART 2 HAS BEEN FAILED!!!"  # The test has been failed
 
 # add options
 parser = OptionParser()
@@ -290,16 +299,11 @@ if options.g > 0:
 if options.p is not None and options.m > 0:
 	full_generator().test_max_aces(options.p,options.m)		# -p PATH TO TEST FILE OR DIR 	-m MAX ACEs
 
-if options.d is not None and options.f > 0:
+if options.d is not None and options.f > 0 and options.c is None:
 	full_generator().create_files(options.d,options.f)		# -d PATH TO EXP DIR	-f COUNT OF FILES
 
-if options.d is not None and options.c > 0:
+if options.d is not None and options.c > 0 and options.f is None:
 	full_generator().test_stress_acl_1(options.d, options.c)  # -d PATH TO EXP DIR	-c NUMBER OF LOOPS IN TEST
 
 if options.d is not None and options.f > 0 and options.c > 0:
 	full_generator().test_stress_acl_2(options.d, options.f, options.c)  #-d PATH TO EXP DIR  #-f COUNT OF FILES  #-c NUMBER OF LOOPS IN TEST
-
-# test.getNUserList(options.nbusers)
-# test.getNGroupList(options.nbgroups)
-# for i in range (options.nloop):
-# 	test.randomOp(options.path)
