@@ -209,7 +209,7 @@ time.sleep(3)
 ####GET THE MARKER OF RESULT OF TEST
 if testdir.find("THE TEST HAS BEEN PASSED") and testfile.find("THE TEST HAS BEEN PASSED"):  #if successful test max ACEs for dir and file
     print """
-##########################################################################
+#########################################################################
 
 Test #1 NFSv4 maximum number of ACEs [Extended ACLs for UNIX] is [PASSED]
 
@@ -217,7 +217,7 @@ Test #1 NFSv4 maximum number of ACEs [Extended ACLs for UNIX] is [PASSED]
     ./logs/log_run.log" - execution log (detailed information)
     ./logs/log_result.log - log with the results (PASSED, FAILED)
 
-##########################################################################
+#########################################################################
 """
 else:
     print """
