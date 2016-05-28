@@ -125,9 +125,9 @@ class full_cleaner(object):
 
 #Hiden clean data (гemove users, groups, files, ACEs)
 	def clean_full(self, clean_path): #clean_path - export dir on NFS server
-		commands.getoutput("/usr/bin/setfacl -b " + clean_path) #ACLs del
+		commands.getoutput("/usr/bin/setfacl -R -b " + clean_path) #ACLs del
+		commands.getoutput("/usr/bin/setfacl -R -k " + clean_path)  # ACLs (defauls) del
 		commands.getoutput('/usr/bin/find ' + clean_path + ' -type f -name "nfs*" -exec rm -f {} \;') #files del
-		commands.getoutput('/usr/bin/find ' + clean_path + ' -type d -name "nfs*" -exec rm -f {} \;') #dirs del
 		self.get_users()
 		self.get_groups()
 		self.clean_users_h()  #users del
@@ -171,5 +171,5 @@ if options.full is True:					# --full FULL GET and CLEAN (USERS,GROUPS)
 	full_cleaner().clean_users()
 	full_cleaner().clean_groups()
 
-if options.c is not None:					# -c = path to dir FULL HIDEN CLEAN (USERS,GROUPS, ACES, FILES)
+if options.c is not None:					# -c = path to dir FULL HIDDEN CLEAN (USERS,GROUPS, ACES, FILES)
 	full_cleaner().clean_full(options.c)
