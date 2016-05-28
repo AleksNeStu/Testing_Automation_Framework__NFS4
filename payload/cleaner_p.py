@@ -9,8 +9,9 @@ Opportunities:
 --cu - Clean all users created for testing
 --cg - Clean all groups created for testing
 --cf - Clean all files created for testing
--d - Path to export dir for creating files
 --full - Full get and clean data created for testing
+-d - Path to export dir for creating files
+-c - Path to dir for removing files and start action remove:  users, groups, files, ACEs
 
 example:
 LOCAL: python cleaner_r.py --gu --cu --gg --cg
@@ -63,48 +64,74 @@ class full_cleaner(object):
 # List of files
 	files_list = []  # empty list of files for start
 	def get_files(self, test_path):
-		cmd = commands.getoutput('ls ' + test_path)
-		splitedline = cmd.split('\n')
+		cmd = commands.getoutput("ls " + test_path)
+		splitedline = cmd.split("\n")
 		for i in range(len(splitedline) - 1):
 			name_true = re.match("nfs_file", splitedline[i])
 			if name_true != None:
 				self.files_list.append(splitedline[i])
-
 
 #userdel - delete a user account and related files
 #-f - force some actions that would fail otherwise
 #-r - remove home directory and mail spool
 	def clean_users(self):
 		for uname in self.users_list:
-			cmd = commands.getoutput('/usr/sbin/userdel -r ' + uname)
+			cmd = commands.getoutput("/usr/sbin/userdel -r " + uname)
 			print "    User del: " + uname + " / has been done"
 			if cmd != "":
 				print "    User del: " + uname + " / with errors"
 				print cmd
 		self.users_list = []
 
+#userdel - delete a user account and related files (hidden)
+	def clean_users_h(self):
+		for uname in self.users_list:
+			commands.getoutput("/usr/sbin/userdel -r " + uname)
+		self.users_list = []
+
 #Clean all groups created for testing
 #groupdel - delete a group
 	def clean_groups(self):
 		for gname in self.groups_list:
-			cmd = commands.getoutput('/usr/sbin/groupdel ' + gname[0])
+			cmd = commands.getoutput("/usr/sbin/groupdel " + gname[0])
 			print "    Group del: " + gname[0] + " / has been done"
 			if cmd != "":
 				print "    Group del: " + gname[0] + " / with errors"
 				print cmd
 		self.groups_list = []
 
+#Clean all groups created for testing (hidden)
+	def clean_groups_h(self):
+		for gname in self.groups_list:
+			commands.getoutput("/usr/sbin/groupdel " + gname[0])
+		self.groups_list = []
+
 #Clean all files created for testing
 #groupdel - delete a group
 	def clean_files(self, test_path):
 		for fname in self.files_list:
-			cmd = commands.getoutput('/usr/bin/rm -f ' + test_path + "/" + fname[0])
+			cmd = commands.getoutput("/usr/bin/rm -f " + test_path + "/" + fname[0])
 			print "    File del: " + test_path + "/" + fname[0] + " / has been done"
 			if cmd != "":
 				print "    File del: " + test_path + "/" + fname[0] + " / with errors"
 				print cmd
 		self.files_list = []
 
+#Clean all files created for testing (hidden)
+	def clean_files_h(self, test_path):
+		for fname in self.files_list:
+			commands.getoutput("/usr/bin/rm -f " + test_path + "/" + fname[0])
+		self.files_list = []
+
+#Hiden clean data (гemove users, groups, files, ACEs)
+	def clean_full(self, clean_path): #clean_path - export dir on NFS server
+		commands.getoutput("/usr/bin/setfacl -b " + clean_path) #ACLs del
+		commands.getoutput('/usr/bin/find ' + clean_path + ' -type f -name "nfs*" -exec rm -f {} \;') #files del
+		commands.getoutput('/usr/bin/find ' + clean_path + ' -type d -name "nfs*" -exec rm -f {} \;') #dirs del
+		self.get_users()
+		self.get_groups()
+		self.clean_users_h()  #users del
+		self.clean_groups_h() #groups del
 
 # add options in
 parser = OptionParser()
@@ -116,6 +143,7 @@ parser.add_option("--cg", action="store_true", dest="cg", default=False, help="C
 parser.add_option("--cf", action="store_true", dest="cf", default=False, help="Clean all files created for testing")
 parser.add_option("--full", action="store_true", dest="full", default=False, help="Full get and clean data created for testing")
 parser.add_option("-d", "--dir", dest="d", type="str", help="Path to export dir for creating files")
+parser.add_option("-c", "--clean", dest="c", type="str", help="Path to dir for removing files and start action remove users, groups, files, ACEs")
 (options, args) = parser.parse_args()
 
 #use options
@@ -142,3 +170,6 @@ if options.full is True:					# --full FULL GET and CLEAN (USERS,GROUPS)
 	full_cleaner().get_groups()
 	full_cleaner().clean_users()
 	full_cleaner().clean_groups()
+
+if options.c is not None:					# -c = path to dir FULL HIDEN CLEAN (USERS,GROUPS, ACES, FILES)
+	full_cleaner().clean_full(options.c)
