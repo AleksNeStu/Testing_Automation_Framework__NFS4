@@ -164,7 +164,7 @@ test1 = d2.communicate()[0]				#execution of the test actions
 print test1								#display the process of testing
 time.sleep(3)
 
-print "    [(Part 2) Stress test for a large number random ACEs for list files in export directory on the NFSv4 server]]"
+print "    [(Part 2) Stress test for a large number random ACEs for random files in export directory on the NFSv4 server]]"
 #t6 Create the test files in the export directory on the NFSv4 server (for part 2 of test #2)
 print
 print "    [Create", files," files on in the export directory the NFSv4 server] : "
