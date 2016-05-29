@@ -27,8 +27,12 @@ Test #1: NFSv4 - Test the maximum number of ACEs (Access Control Entries)
     - XFS: 25
     - GFS2: 25
 
+    Auto check file system type for NFSv4 server export directory and check
+    limits for max count of ACEs [Extended ACLs for UNIX]
+
 =========================================================================
 """
+time.sleep(5)
 ################GET INFO###########################################
 
 #i1 Set, check server hostname

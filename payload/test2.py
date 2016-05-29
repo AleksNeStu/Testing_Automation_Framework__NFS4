@@ -25,8 +25,16 @@ Test #2: NFSv4 - Stress test for a large number of random operations
     with a large number of random operations setting ACEs
     (Access Control Entries)
 
+    Part 1 - Emulate a large number random operations with ACEs for export
+             directory on the NFSv4 server, health check NFSv4 service
+
+    Part 2 - Emulate a large number random operations with ACEs for random
+             files in export directory on the NFSv4 server, health check
+             NFSv4 service
+
 =========================================================================
 """
+time.sleep(5)
 # The test will be focused to NFS export dir and to the files that will be created in it"
 
 ################GET INFO###########################################
