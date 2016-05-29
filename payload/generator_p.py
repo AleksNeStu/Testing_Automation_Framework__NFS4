@@ -200,7 +200,7 @@ class full_generator(object):
 			# 	print e
 
 # Stress test for a large number of random operations setting ACEs [Extended ACLs for UNIX]
-# Random operations with setfacl: random options (actions),
+# Random operations with setfacl: random options (actions)
 	def test_stress_acl_2(self, test_path, files, cycles):
 		print
 		self.create_files(test_path,files)	# create files
@@ -266,7 +266,7 @@ class full_generator(object):
 
 # Stress test for export a large number of directories on the NFSv4 server and their subsequent mounting on the NFSv4
 # client, health check NFSv4 service
-# Operations with server: exportfs; client: mount, umpunt.
+# Operations with server: exportfs; client: mount, unmount.
 	def test_stress_exports_1(self, server, cycles):
 		print "    [Create", cycles, "directories (both), export them (server) and mount them (client)] : "
 		print
@@ -298,8 +298,8 @@ class full_generator(object):
 			if self.exp_l != "":
 				print "    [Client] : directory /mnt/nfs_exp" + str(a) + " mounted errors"
 				print self.exp_l
-			print ""
 		time.sleep(3)
+		print
 		self.check_export = commands.getoutput("showmount -e " + server + " | grep nfs_exp" + str(cycles))
 		print "    [Check the final export directory on the server] :"
 		print
@@ -315,15 +315,12 @@ class full_generator(object):
 		else:
 			print "    THE TEST #3 PART 1 HAS BEEN PASSED!!!"  # The test has been passed
 
-
+# Stress test for large number random operations: exports: export/unexport (server), mount/unmount (client)
 	def test_stress_exports_2(self, server, cycles):
 		print "    [Execute random operations with " + str(cycles) + " exports: export/unexport (server), mount/unmount (client)] : "
 		print
 		for b in range(1, cycles+1):   # number of random operations cycles +1 (two times more than exports)
 			self.action = random.randint(1, 4)  # get random action from 1 .. 4
-			# random_user = u[random.randint(0, len(u) - 1)]  # get random user from list
-			# random_rights = self.random_rwx()  # get random rights rw, rwx, x, ...
-			# random_file = f[random.randint(0, len(f) - 1)]  # get random file from list
 			if self.action == 1:  # export random dir on server (if b > exports then can run export operations with non-existent dirs)
 				cmd1 = " /usr/sbin/exportfs -i -o rw,nohide,no_root_squash,insecure,no_subtree_check,sync '*:/mnt/nfs_exp" + str(b) + "'"
 				cmd = commands.getoutput("/usr/bin/rsh " + server + cmd1)
