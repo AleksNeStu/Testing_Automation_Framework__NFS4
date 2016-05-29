@@ -258,10 +258,63 @@ class full_generator(object):
 		check = commands.getoutput("/usr/bin/systemctl status nfs.service") #check the status of the NFS server services after the stress test
 		print check
 		print
-		if check.find("active (exited)"):
+		if check.find("active (exited)") != -1:
 			print "    THE TEST #2 PART 2 HAS BEEN PASSED!!!"  # The test has been passed
 		else:
 			print "    THE TEST #2 PART 2 HAS BEEN FAILED!!!"  # The test has been failed
+
+
+# Stress test for export a large number of directories on the NFSv4 server and their subsequent mounting on the NFSv4
+# client, health check NFSv4 service
+# Operations with server: exportfs; client: mount, umpunt.
+	def test_stress_exports_1(self, server, cycles):
+		print "    [Create", cycles, "directories (both), export them (server) and mount them (client)] : "
+		print
+		for a in range(1, cycles + 1):
+# create dirs for export on server side
+			print "    #" + str(a) + " STEP"
+			expdir_r = commands.getoutput("/usr/bin/rsh " + server + " /usr/bin/mkdir -p /mnt/nfs_exp" + str(a))
+			print "    [Server] : directory /mnt/nfs_exp" + str(a) + " has been created"
+			if expdir_r != "":
+				print "    [Server] : directory /mnt/nfs_exp" + str(a) + " created errors"
+				print expdir_r
+# export created dirs on server side
+			opt_r = " /usr/sbin/exportfs -i -o rw,nohide,no_root_squash,insecure,no_subtree_check,sync '*:/mnt/nfs_exp" + str(a) + "'"
+			exp_r = commands.getoutput("/usr/bin/rsh " + server + opt_r)
+			print "    [Server] : directory /mnt/nfs_exp" + str(a) + " has been exported"
+			if exp_r != "":
+				print "    [Server] : directory /mnt/nfs_exp" + str(a) + " exported errors"
+				print exp_r
+				break
+# create dirs for export on client side
+			expdir_l = commands.getoutput("/usr/bin/mkdir -p /mnt/nfs_mnt" + str(a))
+			print "    [Client] : directory /mnt/nfs_mnt" + str(a) + " has been created"
+			if expdir_l != "":
+				print "    [Client] : directory /mnt/nfs_mnt" + str(a) + " created errors"
+				print expdir_r
+# mount created dirs from server to client side
+			opt_l = " -t nfs4 " + server + ":/mnt/nfs_exp" + str(a) + " /mnt/nfs_mnt" + str(a)
+			exp_l = commands.getoutput("/usr/bin/mount" + opt_l)
+			print "    [Client] : directory /mnt/nfs_exp" + str(a) + " has been mounted to local /mnt/nfs_mnt" + str(a)
+			if exp_l != "":
+				print "    [Client] : directory /mnt/nfs_exp" + str(a) + " mounted errors"
+				print exp_l
+				break
+			print ""
+		time.sleep(3)
+		check_export = commands.getoutput("showmount -e " + server + " | grep nfs_exp" + str(cycles))
+		print "    [Check the final export directory on the server] :"
+		print
+		print check_export
+		print
+		print "    [Check the final mount directory on the client] :"
+		print
+		check_mount = commands.getoutput("/usr/bin/mount | grep nfs_mnt" + str(cycles))
+		print check_mount
+		if exp_r.find("error") != -1 or exp_l.find("error") != -1 or check_export == "" or check_mount == "":
+			print "    THE TEST #3 PART 1 HAS BEEN FAILED!!!"  # The test has been failed
+		else:
+			print "    THE TEST #3 PART 1 HAS BEEN PASSED!!!"  # The test has been passed
 
 # add options
 parser = OptionParser()
@@ -272,11 +325,10 @@ parser.add_option("-u", "--users", dest="u", type="int", help="Generate u users 
 parser.add_option("-g", "--groups", dest="g", type="int", help="Generate g groups for testing")
 parser.add_option("-f", "--files", dest="f", type="int", help="Generate f files for testing in -d dir")
 parser.add_option("-c", "--cycles", dest="c", type="int", help="The number of loops in the test")
-# parser.add_option("-d", "--dir", dest="d", type="str", help="Create the dir in the given NFS exp dir for testing")
-# parser.add_option("-f", "--file", dest="f", type="str", help="Create the file in the given NFS exp dir for testing")
 parser.add_option("-p", "--path", dest="p", type="str", help="Path to test dir or file for set ACEs")
 parser.add_option("-m", "--max", dest="m", type="int", help="Max count of ACEs for dir or file according of type of fs")
 parser.add_option("-d", "--dir", dest="d", type="str", help="Path to export dir for creating -f files")
+parser.add_option("-s", "--server", dest="s", type="str", help="Hostname of NFS test server")
 (options, args) = parser.parse_args()
 
 #use options
@@ -307,3 +359,6 @@ if options.d is not None and options.c > 0 and options.f is None:
 
 if options.d is not None and options.f > 0 and options.c > 0:
 	full_generator().test_stress_acl_2(options.d, options.f, options.c)  #-d PATH TO EXP DIR  #-f COUNT OF FILES  #-c NUMBER OF LOOPS IN TEST
+
+if options.s is not None and options.c > 0:
+	full_generator().test_stress_exports_1(options.s,options.c)			#-s SERVER -c CYCLES (NUMBER EXP DIRS)
