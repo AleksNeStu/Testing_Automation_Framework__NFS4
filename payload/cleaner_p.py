@@ -136,16 +136,39 @@ class full_cleaner(object):
 #Hiden clean data (гemove users, groups, files, ACEs)
 	def clean_full(self, clean_path): #clean_full (hidden)
 		print
-		cmd1 = commands.getoutput("/usr/bin/setfacl -R -b " + clean_path)  # ACLs del
-		cmd2 = commands.getoutput("/usr/bin/setfacl -R -k " + clean_path)  # ACLs (defauls) del
+		commands.getoutput("/usr/bin/setfacl -R -b " + clean_path)  # ACLs del
+		commands.getoutput("/usr/bin/setfacl -R -k " + clean_path)  # ACLs (defauls) del
 		print "    Created ACEs have been deleted from export dir and files in it on the NFS server."
-		cmd3 = commands.getoutput('/usr/bin/find ' + clean_path + ' -type f -name "nfs*" -exec rm -f {} \;') #files del
+		commands.getoutput('/usr/bin/find ' + clean_path + ' -type f -name "nfs*" -exec rm -f {} \;') #files del
 		print "    Created files have been deleted from export dir on the NFS server."
 		self.get_users()
 		self.get_groups()
 		self.clean_users_h()  #users del
 		self.clean_groups_h() #groups del
 		print "    Created users and groups have been deleted from the NFS server."
+
+
+def clean_mounts_exports(self, server, cycles):
+	print
+# client side (1 - unmout , 2 - del dirs)
+	c1 = commands.getoutput("/usr/bin/umount -f -l /mnt/nfs_mnt*")  # force unmout mounted dirs (client)
+	print "    [Client] : Mounted directories have been unmonted on NFSv4 client."
+	if c1 !="":
+		print c1
+	c2 = commands.getoutput("/usr/bin/rm -rf /mnt/nfs_mnt*")  # force del old mounted dirs (client)
+	print "    [Client] : Old mounted directories have been deleted from NFSv4 client."
+	if c2 !="":
+		print c2
+# server side (3 - unexport, 4 - del dirs)
+	c3 = commands.getoutput("/usr/bin/rsh " + server + " /usr/sbin/exportfs -r") # unexport exported dirs (server)
+	print "    [Server] : Exported directories have been unexported on the NFSv4 server."
+	if c3 != "":
+		print c3
+	c4 = commands.getoutput("/usr/bin/rsh " + server + " /usr/bin/rm -rf /mnt/nfs_exp*")  # force del old mounted dirs (server)
+	print "    [Client] : Old exported directories have been deleted from NFSv4 server."
+	if c4 !="":
+		print c4
+
 
 # add options in
 parser = OptionParser()
