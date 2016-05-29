@@ -215,11 +215,13 @@ if testdir.find("THE TEST HAS BEEN PASSED") and testfile.find("THE TEST HAS BEEN
     print """
 #########################################################################
 
-Test #1 NFSv4 maximum number of ACEs [Extended ACLs for UNIX] is [PASSED]
+Test #1 NFSv4 maximum number of ACEs [Extended ACLs for UNIX]
+
+        [PASSED] [PASSED] [PASSED] [PASSED] [PASSED] [PASSED] [PASSED]
 
     In order to get more information:
     ./logs/log_run.log" - execution log (detailed information)
-    ./logs/log_result.log - log with the results (PASSED, FAILED)
+    ./logs/log_result.log - log with the results
 
 #########################################################################
 """
@@ -227,11 +229,13 @@ else:
     print """
     ##########################################################################
 
-Test #1 NFSv4 maximum number of ACEs [Extended ACLs for UNIX] is [FAILED]
+Test #1 NFSv4 maximum number of ACEs [Extended ACLs for UNIX]
+
+        [FAILED] [FAILED] [FAILED] [FAILED] [FAILED] [FAILED] [FAILED]
 
     In order to get more information:
     ./logs/log_run.log" - execution log (detailed information)
-    ./logs/log_result.log - log with the results (PASSED, FAILED)
+    ./logs/log_result.log - log with the results
 
 ##########################################################################
 """
