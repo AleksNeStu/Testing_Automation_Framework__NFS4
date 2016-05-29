@@ -163,8 +163,8 @@ else:
 ##########################################################################
 
 Test #3 NFSv4 - Stress test for a large number operations:
-        [NFSv4 server side] : export / unexport
-        [NFSv4 client side] : mount / unmount
+        [NFSv4 server side] : export /  unexport
+        [NFSv4 client side] : mount /  unmount
 
         [FAILED] [FAILED] [FAILED] [FAILED] [FAILED] [FAILED] [FAILED]
 
