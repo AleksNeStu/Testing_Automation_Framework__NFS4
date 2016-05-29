@@ -273,48 +273,96 @@ class full_generator(object):
 		for a in range(1, cycles + 1):
 # create dirs for export on server side
 			print "    #" + str(a) + " STEP"
-			expdir_r = commands.getoutput("/usr/bin/rsh " + server + " /usr/bin/mkdir -p /mnt/nfs_exp" + str(a))
+			self.expdir_r = commands.getoutput("/usr/bin/rsh " + server + " /usr/bin/mkdir -p /mnt/nfs_exp" + str(a))
 			print "    [Server] : directory /mnt/nfs_exp" + str(a) + " has been created"
-			if expdir_r != "":
+			if self.expdir_r != "":
 				print "    [Server] : directory /mnt/nfs_exp" + str(a) + " created errors"
-				print expdir_r
+				print self.expdir_r
 # export created dirs on server side
-			opt_r = " /usr/sbin/exportfs -i -o rw,nohide,no_root_squash,insecure,no_subtree_check,sync '*:/mnt/nfs_exp" + str(a) + "'"
-			exp_r = commands.getoutput("/usr/bin/rsh " + server + opt_r)
+			self.opt_r = " /usr/sbin/exportfs -i -o rw,nohide,no_root_squash,insecure,no_subtree_check,sync '*:/mnt/nfs_exp" + str(a) + "'"
+			self.exp_r = commands.getoutput("/usr/bin/rsh " + server + self.opt_r)
 			print "    [Server] : directory /mnt/nfs_exp" + str(a) + " has been exported"
-			if exp_r != "":
+			if self.exp_r != "":
 				print "    [Server] : directory /mnt/nfs_exp" + str(a) + " exported errors"
-				print exp_r
-				break
+				print self.exp_r
 # create dirs for export on client side
-			expdir_l = commands.getoutput("/usr/bin/mkdir -p /mnt/nfs_mnt" + str(a))
+			self.expdir_l = commands.getoutput("/usr/bin/mkdir -p /mnt/nfs_mnt" + str(a))
 			print "    [Client] : directory /mnt/nfs_mnt" + str(a) + " has been created"
-			if expdir_l != "":
+			if self.expdir_l != "":
 				print "    [Client] : directory /mnt/nfs_mnt" + str(a) + " created errors"
-				print expdir_r
+				print self.expdir_r
 # mount created dirs from server to client side
-			opt_l = " -t nfs4 " + server + ":/mnt/nfs_exp" + str(a) + " /mnt/nfs_mnt" + str(a)
-			exp_l = commands.getoutput("/usr/bin/mount" + opt_l)
+			self.opt_l = " -t nfs4 " + server + ":/mnt/nfs_exp" + str(a) + " /mnt/nfs_mnt" + str(a)
+			self.exp_l = commands.getoutput("/usr/bin/mount" + self.opt_l)
 			print "    [Client] : directory /mnt/nfs_exp" + str(a) + " has been mounted to local /mnt/nfs_mnt" + str(a)
-			if exp_l != "":
+			if self.exp_l != "":
 				print "    [Client] : directory /mnt/nfs_exp" + str(a) + " mounted errors"
-				print exp_l
-				break
+				print self.exp_l
 			print ""
 		time.sleep(3)
-		check_export = commands.getoutput("showmount -e " + server + " | grep nfs_exp" + str(cycles))
+		self.check_export = commands.getoutput("showmount -e " + server + " | grep nfs_exp" + str(cycles))
 		print "    [Check the final export directory on the server] :"
 		print
-		print check_export
+		print self.check_export
 		print
 		print "    [Check the final mount directory on the client] :"
 		print
-		check_mount = commands.getoutput("/usr/bin/mount | grep nfs_mnt" + str(cycles))
-		print check_mount
-		if exp_r.find("error") != -1 or exp_l.find("error") != -1 or check_export == "" or check_mount == "":
+		self.check_mount = commands.getoutput("/usr/bin/mount | grep nfs_mnt" + str(cycles))
+		print self.check_mount
+		print
+		if self.exp_r.find("error") != -1 or self.exp_l.find("error") != -1 or self.check_export == "" or self.check_mount == "":
 			print "    THE TEST #3 PART 1 HAS BEEN FAILED!!!"  # The test has been failed
 		else:
 			print "    THE TEST #3 PART 1 HAS BEEN PASSED!!!"  # The test has been passed
+
+
+	def test_stress_exports_2(self, server, cycles):
+		print "    [Execute random operations with " + str(cycles) + " exports: export/unexport (server), mount/unmount (client)] : "
+		print
+		for b in range(1, cycles+1):   # number of random operations cycles +1 (two times more than exports)
+			self.action = random.randint(1, 4)  # get random action from 1 .. 4
+			# random_user = u[random.randint(0, len(u) - 1)]  # get random user from list
+			# random_rights = self.random_rwx()  # get random rights rw, rwx, x, ...
+			# random_file = f[random.randint(0, len(f) - 1)]  # get random file from list
+			if self.action == 1:  # export random dir on server (if b > exports then can run export operations with non-existent dirs)
+				cmd1 = " /usr/sbin/exportfs -i -o rw,nohide,no_root_squash,insecure,no_subtree_check,sync '*:/mnt/nfs_exp" + str(b) + "'"
+				cmd = commands.getoutput("/usr/bin/rsh " + server + cmd1)
+				print "    #" + str(b) + " STEP [Server] : directory /mnt/nfs_exp" + str(b) + " has been exported"
+				if cmd != "":
+					print "    #" + str(b) + " STEP [Server] : directory /mnt/nfs_exp" + str(b) + " exported errors"
+					print cmd
+			if self.action == 2:  # unexport random dir on server (if b > exports then can run unexport operations with non-existent dirs)
+				cmd1 = " /usr/sbin/exportfs -u '*:/mnt/nfs_exp" + str(b) + "'"
+				cmd = commands.getoutput("/usr/bin/rsh " + server + cmd1)
+				print "    #" + str(b) + " STEP [Server] : directory /mnt/nfs_exp" + str(b) + " has been unexported"
+				if cmd != "":
+					print "    #" + str(b) + " STEP [Server] : directory /mnt/nfs_exp" + str(b) + " unexported errors"
+					print cmd
+			if self.action == 3:  # mount random dir on client (if b > exports then can run mount operations with non-existent dirs)
+				cmd1 = " -t nfs4 " + server + ":/mnt/nfs_exp" + str(b) + " /mnt/nfs_mnt" + str(b)
+				cmd = commands.getoutput("/usr/bin/mount" + cmd1)
+				print "    #" + str(b) + " STEP [Client] : directory /mnt/nfs_exp" + str(b) + " has been mounted to local /mnt/nfs_mnt" + str(b)
+				if cmd != "":
+					print "    #" + str(b) + " STEP [Client] : directory /mnt/nfs_exp" + str(b) + " mounted errors"
+					print cmd
+			if self.action == 4:  # unmount random dir on client (if b > exports then can run unmount operations with non-existent dirs)
+				cmd1 = " -f -l /mnt/nfs_mnt" + str(b)   #force  -f force unmount (in case of an unreachable NFS system)
+				cmd = commands.getoutput("/usr/bin/umount" + cmd1)
+				print "    #" + str(b) + " STEP [Client] : directory /mnt/nfs_mnt" + str(b) + " has been unmounted"
+				if cmd != "":
+					print "    #" + str(b) + " STEP [Client] : directory /mnt/nfs_mnt" + str(b) + " unmounted errors"
+					print cmd
+		print
+		print "    [Check the status of a NFS service on the NFSv4 server after stress test] :"
+		print
+		self.check = commands.getoutput("/usr/bin/rsh " + server + " /usr/bin/systemctl status nfs.service")  # check the status of the NFS server services after the stress test
+		print self.check
+		print
+		if self.check.find("active (exited)") != -1:
+			print "    THE TEST #3 PART 2 HAS BEEN PASSED!!!"  # The test has been passed
+		else:
+			print "    THE TEST #3 PART 2 HAS BEEN FAILED!!!"  # The test has been failed
+
 
 # add options
 parser = OptionParser()
@@ -328,7 +376,6 @@ parser.add_option("-c", "--cycles", dest="c", type="int", help="The number of lo
 parser.add_option("-p", "--path", dest="p", type="str", help="Path to test dir or file for set ACEs")
 parser.add_option("-m", "--max", dest="m", type="int", help="Max count of ACEs for dir or file according of type of fs")
 parser.add_option("-d", "--dir", dest="d", type="str", help="Path to export dir for creating -f files")
-parser.add_option("-s", "--server", dest="s", type="str", help="Hostname of NFS test server")
 (options, args) = parser.parse_args()
 
 #use options
@@ -359,6 +406,3 @@ if options.d is not None and options.c > 0 and options.f is None:
 
 if options.d is not None and options.f > 0 and options.c > 0:
 	full_generator().test_stress_acl_2(options.d, options.f, options.c)  #-d PATH TO EXP DIR  #-f COUNT OF FILES  #-c NUMBER OF LOOPS IN TEST
-
-if options.s is not None and options.c > 0:
-	full_generator().test_stress_exports_1(options.s,options.c)			#-s SERVER -c CYCLES (NUMBER EXP DIRS)
