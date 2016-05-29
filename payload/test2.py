@@ -193,7 +193,7 @@ print full_del								#display the process of cleaning the previously created da
 time.sleep(3)
 
 #####################LOG AND PRINT RESULTS################################
-#print "Test #1 [PASSED]"
+#print "Test #2 [PASSED]"
 ####GET THE MARKER OF RESULT OF TEST
 if test1.find("HAS BEEN PASSED") and test2.find("HAS BEEN PASSED"):
     print """
@@ -202,9 +202,11 @@ if test1.find("HAS BEEN PASSED") and test2.find("HAS BEEN PASSED"):
 Test #2 NFSv4 - Stress test for a large number of random operations
         setting ACEs [Extended ACLs for UNIX] [PASSED]
 
+        [PASSED] [PASSED] [PASSED] [PASSED] [PASSED] [PASSED] [PASSED]
+
     In order to get more information:
     ./logs/log_run.log" - execution log (detailed information)
-    ./logs/log_result.log - log with the results (PASSED, FAILED)
+    ./logs/log_result.log - log with the results
 
 ##########################################################################
 """
@@ -213,11 +215,13 @@ else:
 ##########################################################################
 
 Test #2 NFSv4 - Stress test for a large number of random operations
-        setting ACEs [Extended ACLs for UNIX] [FAILED]
+        setting ACEs [Extended ACLs for UNIX]
+
+        [FAILED] [FAILED] [FAILED] [FAILED] [FAILED] [FAILED] [FAILED]
 
     In order to get more information:
     ./logs/log_run.log" - execution log (detailed information)
-    ./logs/log_result.log - log with the results (PASSED, FAILED)
+    ./logs/log_result.log - log with the results
 
 ##########################################################################
 """
