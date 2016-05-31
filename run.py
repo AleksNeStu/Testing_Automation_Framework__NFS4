@@ -8,8 +8,9 @@
 
 ################Import the necessary packages and attributes#####
 from os import system
-from cursesmenu import *        #availible local version ./cursesmenu https://github.com/pmbarrett314/curses-menu.git
-from cursesmenu.items import *  #availible local version ./cursesmenu https://github.com/pmbarrett314/curses-menu.git
+
+from cursesmenu import *
+from cursesmenu.items import *
 
 
 ################Custom functions##################################
@@ -55,20 +56,22 @@ def main():
     menu1 = FunctionItem("Read Help", execute_cmd, ["cat ./README.md | less"])   #help
     menu2 = CommandItem("Check test environment", "python -ui ./payload/test-test.py")
 
-    menu3 = CursesMenu("<NFSv4 test suite> [Run from Client side]", "  Run test cases:")
-    test1 = CommandItem("Test #1: NFSv4 test case [Limits the length of the ACLs attributes]", "python -ui ./payload/test1.py")
-    test2 = CommandItem("2", "python -ui ./payload/test2.py")
-    test3 = CommandItem("3", "python -ui ./payload/test3.py")
-    test4 = CommandItem("4", "python -ui ./payload/test4.py")
-    test5 = CommandItem("5", "python -ui ./payload/test5.py")
-    tests = CommandItem("1..5", "python -ui ./payload/test1_5.py")
+    menu3 = CursesMenu("<NFSv4 test suite> [Run from Client side]", "  Run tests:")
+    test1 = CommandItem("1. Test the maximum number of ACEs supported by file system [Extended ACLs for UNIX]", "python -ui ./payload/test1.py")
+    test2 = CommandItem("2. Stress test for a large number of random operations setting ACEs [Extended ACLs for UNIX]", "python -ui ./payload/test2.py")
+    test3 = CommandItem("3. Stress test for a large number operations [server] : export/unexport, [client] : mount/unmount", "python -ui ./payload/test3.py")
+    test4 = CommandItem("4. Complex test for owner/permission/content modification of NFSv4 file system", "python -ui ./payload/test4.py")
+    test5 = CommandItem("5. Stress test for a large number of random operations setting ACEs [NFSv4 ACLs]", "python -ui ./payload/test5.py")
+    tests = CommandItem("Run all tests 1..5", "python -ui ./payload/tests.py")
+    logs = FunctionItem("Watch the log", execute_cmd, ["cat ./logs/log_result.log | less"])
     menu3.append_item(test1)
     menu3.append_item(test2)
     menu3.append_item(test3)
     menu3.append_item(test4)
     menu3.append_item(test5)
     menu3.append_item(tests)
-    menu4 = SubmenuItem("Run test cases", menu3, menu)
+    menu3.append_item(logs)
+    menu4 = SubmenuItem("Run tests", menu3, menu)
 
     #Add the items to the menu
     menu.append_item(menu1)
