@@ -87,6 +87,37 @@ class full_generator(object):
 				print "    File: " + test_path + "/" + fname + " / with errors"
 				print cmd
 
+# Generate "nb" files in directory "/test_path" with different and random access rights (chmod)
+	def create_files_random_chmod(self, test_path, nb):
+		for i in range(1, nb + 1):
+			fname = "nfs_file" + str(i)
+			file = test_path + "/" + fname  # the full path to the file
+			rwx1 = self.random_rwx()    #get random rights rw, rwx, x, ...
+			rwx2 = self.random_rwx()
+			rwx3 = self.random_rwx()
+# u - user, g - group, o - others / r - read, w - write, x - execute
+			cmds = commands.getoutput("touch "+file+"; chmod -f u="+rwx1+",g="+rwx2+",o="+rwx3+" "+file)
+			self.files_list_r.append(fname)
+			print "    File: " + file + " / has been created with permissions: u="+rwx1+",g="+rwx2+",o="+rwx3
+			if cmds != "":
+				print "    File: " + file + " / with errors"
+				print cmds
+
+# Generate "nb" directories in "/test_path" with different and random access rights (chmod)
+	def create_dirs_random_chmod(self, test_path, nb):
+		for i in range(1, nb + 1):
+			dname = "nfs_dir" + str(i)
+			dir = test_path + "/" + dname  # the full path to the dir
+			rwx1 = self.random_rwx()    #get random rights rw, rwx, x, ...
+			rwx2 = self.random_rwx()
+			rwx3 = self.random_rwx()
+			cmds = commands.getoutput("mkdir -p "+dir+"; chmod -R -f u="+rwx1+",g="+rwx2+",o="+rwx3+"")
+			self.dirs_list_r.append(dname)
+			print "    Directory: " + dir + " / has been created with permissions: u="+rwx1+",g="+rwx2+",o="+rwx3+""
+			if cmds != "":
+				print "    Directory: " + dir + " / with errors"
+				print cmds
+
 #Get list of groups created for testing
 # List of groups
 	groups_list = []  # empty list of groups for start
@@ -122,6 +153,29 @@ class full_generator(object):
 # List of files
 	files_list = []  # empty list of files for start
 	def get_files(self, test_path):
+		cmd = commands.getoutput("ls " + test_path)
+		splitedline = cmd.split("\n")
+		for i in range(len(splitedline) - 1):
+			name_true = re.match("nfs_file", splitedline[i])
+			if name_true != None:
+				self.files_list.append(splitedline[i])
+
+# Get list of files with random chmod
+	files_list_r = []  # empty list of files for random chmod
+	def get_files_random_chmod(self, test_path):
+		cmd = commands.getoutput("ls " + test_path)
+		splitedline = cmd.split("\n")
+		for i in range(len(splitedline) - 1):
+			name_true = re.match("nfs_file", splitedline[i])
+			if name_true != None:
+				self.files_list.append(splitedline[i])
+
+				# Get list of files with random chmod
+				files_list_r = []  # empty list of files for random chmod
+
+# Get list of dirs with random chmod
+	dirs_list_r = []
+	def get_dirs_random_chmod(self, test_path):
 		cmd = commands.getoutput("ls " + test_path)
 		splitedline = cmd.split("\n")
 		for i in range(len(splitedline) - 1):
