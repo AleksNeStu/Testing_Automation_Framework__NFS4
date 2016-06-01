@@ -21,12 +21,14 @@ REMOTE: cat ./generator_p.py | /usr/bin/rsh rhel python - -g 60 --gg -u 76
 
 """
 
-import time
 import random  						#Random variable generators
 import commands	 					#Execute shell commands via os.popen() and return status, output
 import re		 					#Support for regular expressions (RE)
 from compiler.syntax import check
 from optparse import OptionParser	#Parser for command line options
+from time import strftime
+import time
+import os
 
 class full_generator(object):
 
@@ -111,9 +113,10 @@ class full_generator(object):
 			rwx1 = self.random_rwx()    #get random rights rw, rwx, x, ...
 			rwx2 = self.random_rwx()
 			rwx3 = self.random_rwx()
-			cmds = commands.getoutput("mkdir -p "+dir+"; chmod -R -f u="+rwx1+",g="+rwx2+",o="+rwx3+"")
+# u - user, g - group, o - others / r - read, w - write, x - execute
+			cmds = commands.getoutput("mkdir -p "+dir+"; chmod -R -f u="+rwx1+",g="+rwx2+",o="+rwx3+" "+dir)
 			self.dirs_list_r.append(dname)
-			print "    Directory: " + dir + " / has been created with permissions: u="+rwx1+",g="+rwx2+",o="+rwx3+""
+			print "    Directory: " + dir + " / has been created with permissions: u="+rwx1+",g="+rwx2+",o="+rwx3
 			if cmds != "":
 				print "    Directory: " + dir + " / with errors"
 				print cmds
@@ -170,16 +173,13 @@ class full_generator(object):
 			if name_true != None:
 				self.files_list.append(splitedline[i])
 
-				# Get list of files with random chmod
-				files_list_r = []  # empty list of files for random chmod
-
 # Get list of dirs with random chmod
-	dirs_list_r = []
+	dirs_list_r = []  # empty list of dirs for random chmod
 	def get_dirs_random_chmod(self, test_path):
 		cmd = commands.getoutput("ls " + test_path)
 		splitedline = cmd.split("\n")
 		for i in range(len(splitedline) - 1):
-			name_true = re.match("nfs_file", splitedline[i])
+			name_true = re.match("nfs_dir", splitedline[i])
 			if name_true != None:
 				self.files_list.append(splitedline[i])
 
@@ -195,6 +195,35 @@ class full_generator(object):
 			if random.randint(0, 1) == 1:
 				out_str += "r"
 		return out_str
+
+#Print list created groups
+	def print_groups_list(self):
+		print self.groups_list
+#Print list created users
+	def print_users_list(self):
+		print self.users_list
+#Print list created files
+	def print_files_list(self):
+		print self.files_list
+#Print list created files with random chmod
+	def print_files_list_r(self):
+		print self.files_list_r
+#Print list created dirs with random chmod
+	def print_dirs_list_r(self):
+		print self.dirs_list_r
+
+	#Log execution process of tests (add info)
+	def log_add(self,log_path,add):
+		time = str(strftime("%Y-%m-%d %H:%M:%S"))  # time when execute code
+		log = open(log_path, "a")
+		log.write(time + " : " + add + "\n")		# add time and info into the log file
+		log.close()
+
+	# Log execution process of tests (del info)
+	def log_del(self, log_path):
+		log = open(log_path, "w+")
+		log.close()
+
 
 #Test the maximum number of ACEs (Access Control Entries) for dir and file (path) according to the restrictions
 # standart permitions (4 ACEs):
@@ -414,6 +443,59 @@ class full_generator(object):
 		else:
 			print "    THE TEST #3 PART 2 HAS BEEN FAILED!!!"  # The test has been failed
 
+####################################POSIX tests#####################################################
+# u - user, g - group, o - others / r - read, w - write, x - execute
+# chown, chgrp, chmod, umask
+	dir_r = []			# the empty list of firs with rights: r
+	dir_rw = []			# the empty list of dirs with rights: rw
+	file_r = []			# the empty list of files with rights: r
+	file_rx = []  		# the empty list of files with rights: rx
+	file_rw = []  		# the empty list of files with rights: rw
+	files = []  		# the empty list of files in test_path
+	dirs = []  			# the empty list of dirs in test_path
+	dirs_chmod = {}  	# the empty tuple of dirictories with recognized access rights
+	files_chmod = {}  	# the empty tuple of files with recognized access rights
+	def posix_chmod_parser(self,test_path,log_path):
+		self.test_dir = test_path  # path to test dir with files and dirs (different chmod)
+		print "    START: Get directories and files in test directory " + self.test_dir
+		self.log_add(log_path,"START: Get directories and files in test directory " + self.test_dir)
+		for dir_n, dir_nn, file_nn in os.walk(self.test_dir):
+			blank = 0
+			for dir2 in dir_nn:			# Get directories
+				dir_true = os.path.join(dir_n, dir2)
+				mode = int(oct(os.stat(dir_true).st_mode)[-3:])  # get chmod (permissions) ___uga
+				print "    Get dir: " + dir_true + " permissions: " + str(mode)
+				self.log_add(log_path,"Get dir: " + dir_true + " permissions: " + str(mode))
+				blank += 1
+				self.dirs.append(dir_true)
+				if mode >= 444:					#444 = -r--r--r--  any can read dir
+					self.dir_r.append(dir_true)
+				elif mode >=666:				#666 = -rw-rw-rw-  any can read and write dir
+					self.dir_rw.append(dir_true)
+			for file_n in file_nn:			# Get files
+				file_true = os.path.join(dir_n, file_n)
+				mode = int(oct(os.stat(file_true).st_mode)[-3:])			# get chmod (permissions) ___uga
+				print "    Get file: " + file_true + " permissions: " + str(mode)
+				self.log_add(log_path,"Get file: " + file_true + " permissions: " + str(mode))
+				self.files.append(file_true)
+				if mode >= 444:					#444 = -r--r--r--  any can read file
+					self.file_r.append(file_true)
+				elif mode >= 555:  				#555 = -r-xr-xr-x  any can read and execute file
+					self.file_rx.append(file_true)
+				elif mode >= 666:				#666 = -rw-rw-rw-  any can read and write file
+					self.file_rw.append(file_true)
+		self.files_chmod["r"] = self.file_r
+		self.files_chmod["rx"] = self.file_rx
+		self.files_chmod["rw"] = self.file_rw
+		self.dirs_chmod["r"] = self.dir_r
+		self.dirs_chmod["rw"] = self.dir_rw
+		print "    FINISH: Get directories and files in test directory " + self.test_dir
+		self.log_add(log_path, "FINISH: Get directories and files in test directory " + self.test_dir)
+
+	def posix_check_permissions_file(self, server, cycles):
+		print "    [Execute random operations with " + str(cycles) + " exports: export/unexport (server), mount/unmount (client)] : "
+		print
+
 
 # add options
 parser = OptionParser()
@@ -427,6 +509,9 @@ parser.add_option("-c", "--cycles", dest="c", type="int", help="The number of lo
 parser.add_option("-p", "--path", dest="p", type="str", help="Path to test dir or file for set ACEs")
 parser.add_option("-m", "--max", dest="m", type="int", help="Max count of ACEs for dir or file according of type of fs")
 parser.add_option("-d", "--dir", dest="d", type="str", help="Path to export dir for creating -f files")
+parser.add_option("--ff", dest="ff", type="int", help="Generate ff files for testing in --ddd dir")
+parser.add_option("--dd", dest="dd", type="int", help="Generate dd dirs for testing in --ddd dir")
+parser.add_option("--ddd", dest="ddd", type="str", help="Path to ddd dir for create files and dirs with random chmod")
 (options, args) = parser.parse_args()
 
 #use options
@@ -457,3 +542,9 @@ if options.d is not None and options.c > 0 and options.f is None:
 
 if options.d is not None and options.f > 0 and options.c > 0:
 	full_generator().test_stress_acl_2(options.d, options.f, options.c)  #-d PATH TO EXP DIR  #-f COUNT OF FILES  #-c NUMBER OF LOOPS IN TEST
+
+if options.ff > 0 and options.ddd is not None > 0:
+	full_generator().create_files_random_chmod(options.ddd, options.ff)  #-ddd PATH TEST DIR  #-ff COUNT OF TEST FILES
+
+if options.dd > 0 and options.ddd is not None > 0:
+	full_generator().create_dirs_random_chmod(options.ddd, options.dd)  #-ddd PATH TEST DIR  #-dd COUNT OF TEST DIRS
