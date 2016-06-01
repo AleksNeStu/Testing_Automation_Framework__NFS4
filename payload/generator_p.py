@@ -44,7 +44,7 @@ class full_generator(object):
 #Generate groups according the data from "create_groups_n" [consistently in range]
 #groupadd -f -g 7000(range) nfs_group(range)
 # -f - force	-g GID
-	def create_groups(self, gname, gid):
+	def create_groups(self, gname, gid, log_path="../logs/log_run.log"):
 		cmd = commands.getoutput("/usr/sbin/groupadd -f -g " + gid + " " + gname)
 		print "    Group: " + gname + " / GID: " + gid + " / has been created"
 		if cmd != "":
@@ -70,7 +70,7 @@ class full_generator(object):
 #-m - create the user's home directory and new user name
 #-u - UID
 #-p - the encrypted password
- 	def create_users(self, uname, uid):
+ 	def create_users(self, uname, uid, log_path="../logs/log_run.log"):
 		rgname = self.groups_list[random.randint(0, len(self.groups_list) - 1)][0]  #random select from  the previous created groups
 		cmd = commands.getoutput("/usr/sbin/useradd " + "-g " + rgname + " -p nfs" + " -m " + uname + " -u " + uid)
 		print "    User: " + uname + " / UID: " + uid + " / GID: " + rgname + " / has been created"
@@ -79,7 +79,7 @@ class full_generator(object):
 			print cmd
 
 #Generate file set ("nb" of files) in directory /test_path
-	def create_files(self, test_path, nb):
+	def create_files(self, test_path, nb, log_path="../logs/log_run.log"):
 		for i in range(1,nb+1):
 			fname = "nfs_file" + str(i)
 			cmd = commands.getoutput("touch " + test_path + "/" + fname)
@@ -90,7 +90,7 @@ class full_generator(object):
 				print cmd
 
 # Generate "nb" files in directory "/test_path" with different and random access rights (chmod)
-	def create_files_random_chmod(self, test_path, nb):
+	def create_files_random_chmod(self, test_path, nb, log_path="../logs/log_run.log"):
 		for i in range(1, nb + 1):
 			fname = "nfs_file" + str(i)
 			file = test_path + "/" + fname  # the full path to the file
@@ -106,7 +106,7 @@ class full_generator(object):
 				print cmds
 
 # Generate "nb" directories in "/test_path" with different and random access rights (chmod)
-	def create_dirs_random_chmod(self, test_path, nb):
+	def create_dirs_random_chmod(self, test_path, nb, log_path="../logs/log_run.log"):
 		for i in range(1, nb + 1):
 			dname = "nfs_dir" + str(i)
 			dir = test_path + "/" + dname  # the full path to the dir
@@ -197,19 +197,19 @@ class full_generator(object):
 		return out_str
 
 #Print list created groups
-	def print_groups_list(self):
+	def print_groups_list(self,log_path="../logs/log_run.log"):
 		print self.groups_list
 #Print list created users
-	def print_users_list(self):
+	def print_users_list(self,log_path="../logs/log_run.log"):
 		print self.users_list
 #Print list created files
-	def print_files_list(self):
+	def print_files_list(self,log_path="../logs/log_run.log"):
 		print self.files_list
 #Print list created files with random chmod
-	def print_files_list_r(self):
+	def print_files_list_r(self,log_path="../logs/log_run.log"):
 		print self.files_list_r
 #Print list created dirs with random chmod
-	def print_dirs_list_r(self):
+	def print_dirs_list_r(self,log_path="../logs/log_run.log"):
 		print self.dirs_list_r
 
 	#Log execution process of tests (add info)
@@ -231,7 +231,7 @@ class full_generator(object):
 # group::***
 # mask::*** - create after used "setfacl"
 # other::***
-	def test_max_aces(self, test_path, max_aces):     #test_path - to the test dir or file / max_aces - the max count of ACEs
+	def test_max_aces(self, test_path, max_aces, log_path="../logs/log_run.log"):     #test_path - to the test dir or file / max_aces - the max count of ACEs
 		self.get_users()			#get users from /etc/password file
 		u1 = self.users_list[:]		#get users list
 		random.shuffle(u1)			#get random but non-repeating users list
@@ -255,7 +255,7 @@ class full_generator(object):
 # plus
 # Serial setup "cycles" times the option -x (--remove) to remove the ACLs of NFS server export directory
 # In addition is exceeding the permissible value of the amount ACEs for file system
-	def test_stress_acl_1(self, test_path, cycles):  # test_path - to the test dir (export dir on NFS server)  # cycles - the number of cycles
+	def test_stress_acl_1(self, test_path, cycles, log_path="../logs/log_run.log"):  # test_path - to the test dir (export dir on NFS server)  # cycles - the number of cycles
 		commands.getoutput("/usr/bin/setfacl -b " + test_path) #remove all extended ACL entries before start of actions
 		self.get_users()  # get users from /etc/password file
 		u = self.users_list  # get users list
@@ -284,7 +284,7 @@ class full_generator(object):
 
 # Stress test for a large number of random operations setting ACEs [Extended ACLs for UNIX]
 # Random operations with setfacl: random options (actions)
-	def test_stress_acl_2(self, test_path, files, cycles):
+	def test_stress_acl_2(self, test_path, files, cycles, log_path="../logs/log_run.log"):
 		print
 		self.create_files(test_path,files)	# create files
 		self.get_files(test_path)  			# get files from nfs export dir
@@ -350,7 +350,7 @@ class full_generator(object):
 # Stress test for export a large number of directories on the NFSv4 server and their subsequent mounting on the NFSv4
 # client, health check NFSv4 service
 # Operations with server: exportfs; client: mount, unmount.
-	def test_stress_exports_1(self, server, cycles):
+	def test_stress_exports_1(self, server, cycles, log_path="../logs/log_run.log"):
 		print "    [Create", cycles, "directories (both), export them (server) and mount them (client)] : "
 		print
 		for a in range(1, cycles + 1):
@@ -399,7 +399,7 @@ class full_generator(object):
 			print "    THE TEST #3 PART 1 HAS BEEN PASSED!!!"  # The test has been passed
 
 # Stress test for large number random operations: exports: export/unexport (server), mount/unmount (client)
-	def test_stress_exports_2(self, server, cycles):
+	def test_stress_exports_2(self, server, cycles, log_path="../logs/log_run.log"):
 		print "    [Execute random operations with " + str(cycles) + " exports: export/unexport (server), mount/unmount (client)] : "
 		print
 		for b in range(1, cycles+1):   # number of random operations cycles +1 (two times more than exports)
@@ -444,18 +444,18 @@ class full_generator(object):
 			print "    THE TEST #3 PART 2 HAS BEEN FAILED!!!"  # The test has been failed
 
 ####################################POSIX tests#####################################################
+#Get files and dirs, get chmod rights, export to lists, tuples according permissions
 # u - user, g - group, o - others / r - read, w - write, x - execute
 # chown, chgrp, chmod, umask
 	dir_r = []			# the empty list of firs with rights: r
 	dir_rw = []			# the empty list of dirs with rights: rw
 	file_r = []			# the empty list of files with rights: r
-	file_rx = []  		# the empty list of files with rights: rx
 	file_rw = []  		# the empty list of files with rights: rw
 	files = []  		# the empty list of files in test_path
 	dirs = []  			# the empty list of dirs in test_path
 	dirs_chmod = {}  	# the empty tuple of dirictories with recognized access rights
 	files_chmod = {}  	# the empty tuple of files with recognized access rights
-	def posix_chmod_parser(self,test_path,log_path):
+	def posix_chmod_parser(self,test_path,log_path="../logs/log_run.log"):
 		self.test_dir = test_path  # path to test dir with files and dirs (different chmod)
 		print "    START: Get directories and files in test directory " + self.test_dir
 		self.log_add(log_path,"START: Get directories and files in test directory " + self.test_dir)
@@ -480,21 +480,78 @@ class full_generator(object):
 				self.files.append(file_true)
 				if mode >= 444:					#444 = -r--r--r--  any can read file
 					self.file_r.append(file_true)
-				elif mode >= 555:  				#555 = -r-xr-xr-x  any can read and execute file
-					self.file_rx.append(file_true)
 				elif mode >= 666:				#666 = -rw-rw-rw-  any can read and write file
 					self.file_rw.append(file_true)
+		# add markers into the typles in order to find it in future tests
 		self.files_chmod["r"] = self.file_r
-		self.files_chmod["rx"] = self.file_rx
 		self.files_chmod["rw"] = self.file_rw
 		self.dirs_chmod["r"] = self.dir_r
 		self.dirs_chmod["rw"] = self.dir_rw
 		print "    FINISH: Get directories and files in test directory " + self.test_dir
 		self.log_add(log_path, "FINISH: Get directories and files in test directory " + self.test_dir)
 
-	def posix_check_permissions_file(self, server, cycles):
-		print "    [Execute random operations with " + str(cycles) + " exports: export/unexport (server), mount/unmount (client)] : "
-		print
+#Check the ability to write str to the file
+	def posix_check_write_file(self, file_path, look, log_path="../logs/log_run.log"):
+		self.marker = True
+		res = look
+		str = "<NFSv4 test>" #str to write into the file
+		print "    Try writing the string " + str + " to the file " + file_path + " / Expected: " + look
+		self.log_add(log_path, "Try writing the string " + str + " to the file " + file_path + " / Expected: " + look)
+		try:
+			file = open(file_path, "w")
+			file.write(str)
+			file.close()
+			file = open(file_path, "r")
+			self.marker = str == file.read()
+			file.close()
+		except IOError:
+			res = not look
+		self.marker = res
+		if (not res):
+			print "    Try writing the string " + str + " to the file " + file_path + " / Result: failed"
+			self.log_add(log_path, "Try writing the string " + str + " to the file " + file_path + " / Result: failed")
+
+#Check the ability to read the file
+	def posix_check_read_file(self, file_path, look, log_path="../logs/log_run.log"):
+		self.marker = True
+		res = look
+		print "    Try reading the file " + file_path + " / Expected: " + look
+		self.log_add(log_path, "Try reading the file " + file_path + " / Expected: " + look)
+		try:
+			file = open(file_path, "r")
+			file.close()
+		except IOError:
+			res = not look
+		self.marker = res
+		if (not res):
+			print "    Try reading the file " + file_path + " / Result: failed"
+			self.log_add(log_path, "Try reading the file " + file_path + " / Result: failed")
+
+
+	def posix_chmod_check_files(self,test_path, cycles, log_path="../logs/log_run.log"):
+		self.test_dir = test_path  # path to test dir with files (different chmod)
+		self.posix_chmod_parser(test_path)	#Get directories and files in test dir
+		files = self.files_chmod
+		print "    START: Check the permissions of the files in test directory " + self.test_dir
+		self.log_add(log_path,"START: Check the permissions of the files in test directory " + self.test_dir)
+#FILE READ TEST
+		print "    START: Test to read for files with permissions: r"
+		self.log_add(log_path, "START: Test to read for files with permissions: r ")
+		self.marker = True
+		for r in files["r"]:
+			self.posix_check_read_file(r, True)		#wait +
+			self.posix_check_write_file(r, False)	#wait -
+		print "    FINISH: Test to read for files with permissions: r is : " + str(self.marker)
+		self.log_add(log_path, "    FINISH: Test to read for files with permissions: r is : " + str(self.marker))
+#FILE READ AND WRITE TEST
+		print "    START: Test to read and write for files with permissions: rw"
+		self.log_add(log_path, "START: Test to read and write for files with permissions: rw ")
+		self.marker = True
+		for rw in files["rw"]:
+			self.posix_check_read_file(r, True)		#wait +
+			self.posix_check_write_file(r, True)	#wait +
+		print "    FINISH: Test to read and drite for files with permissions: rw is : " + str(self.marker)
+		self.log_add(log_path, "    FINISH: Test to read and write for files with permissions: rw is : " + str(self.marker))
 
 
 # add options
