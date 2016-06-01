@@ -99,7 +99,7 @@ print "    3) The number of users, groups, files, directories to be created on t
 print
 while True:
    try:
-       objects_n = int(raw_input("    The number of users [5..20] [input] : "))
+       objects_n = int(raw_input("    The number of objects [5..20] [input] : "))
        if objects_n not in range(5, 21):
            raise ValueError("    Error! Enter the correct value.")
        break
@@ -123,6 +123,7 @@ loops = str(loops_n)
 
 #Print test intro info
 
+
 print """
 Great! The input data have been received!
 After 5 seconds the test will be started...
@@ -145,10 +146,8 @@ time.sleep(3)
 print
 
 #t3 Hidden clean the test data from previous run tests
-full_cleaner().clean_full_h(nfs_exp_s)
+full_cleaner().clean_full_h(nfs_exp)
 full_cleaner().clean_mounts_exports_h(str(server))
-full_cleaner().clean_files_h(nfs_exp_s)
-
 
 #t4 #
 
