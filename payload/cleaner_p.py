@@ -74,7 +74,7 @@ class full_cleaner(object):
 #userdel - delete a user account and related files
 #-f - force some actions that would fail otherwise
 #-r - remove home directory and mail spool
-	def clean_users(self):
+	def clean_users(self, log_path="../logs/log_run.log"):
 		for uname in self.users_list:
 			cmd = commands.getoutput("/usr/sbin/userdel -r " + uname)
 			print "    User del: " + uname + " / has been done"
@@ -91,7 +91,7 @@ class full_cleaner(object):
 
 #Clean all groups created for testing
 #groupdel - delete a group
-	def clean_groups(self):
+	def clean_groups(self, log_path="../logs/log_run.log"):
 		for gname in self.groups_list:
 			cmd = commands.getoutput("/usr/sbin/groupdel " + gname[0])
 			print "    Group del: " + gname[0] + " / has been done"
@@ -108,7 +108,7 @@ class full_cleaner(object):
 
 #Clean all files created for testing
 #groupdel - delete a group
-	def clean_files(self, test_path):
+	def clean_files(self, test_path, log_path="../logs/log_run.log"):
 		for fname in self.files_list:
 			cmd = commands.getoutput("/usr/bin/rm -f " + test_path + "/" + fname[0])
 			print "    File del: " + test_path + "/" + fname[0] + " / has been done"
@@ -135,7 +135,7 @@ class full_cleaner(object):
 		self.clean_groups_h() #groups del
 
 #Hiden clean data (гemove users, groups, files, ACEs)
-	def clean_full(self, clean_path): #clean_full (hidden)
+	def clean_full(self, clean_path, log_path="../logs/log_run.log"): #clean_full (hidden)
 		print
 		commands.getoutput("/usr/bin/setfacl -R -b " + clean_path)  # ACLs del
 		commands.getoutput("/usr/bin/setfacl -R -k " + clean_path)  # ACLs (defauls) del
@@ -149,7 +149,7 @@ class full_cleaner(object):
 		print "    Created users and groups have been deleted from the NFS server."
 
 
-	def clean_mounts_exports(self, server):
+	def clean_mounts_exports(self, server, log_path="../logs/log_run.log"):
 		print
 # client side (1 - unmout , 2 - del dirs)
 		c1 = commands.getoutput("/usr/bin/umount -f -l /mnt/nfs_mnt*")  # force unmout mounted dirs (client)
@@ -170,7 +170,7 @@ class full_cleaner(object):
 		if c4 !="":
 			print c4
 
-	def clean_mounts_exports_h(self, server): #hidden clean
+	def clean_mounts_exports_h(self, server, log_path="../logs/log_run.log"): #hidden clean
 		print
 # client side (1 - unmout , 2 - del dirs)
 		commands.getoutput("/usr/bin/umount -f -l /mnt/nfs_mnt*")  # force unmout mounted dirs (client)

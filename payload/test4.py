@@ -78,19 +78,6 @@ while True:
        print err_objects_n
 objects = str(objects_n)
 
-print "    4) The number of cycles to perform the tests: "
-#Check input data (the number of cycles) in range [1, 10]
-print
-while True:
-   try:
-       loops_n = int(raw_input("    The number of cycles [1..10] [input] : "))
-       if loops_n not in range(1, 11):
-           raise ValueError("    Error! Enter the correct value.")
-       break
-   except ValueError as err_loops_n:
-       print err_loops_n
-loops = str(loops_n)
-
 #Print test intro info
 
 print """
@@ -159,15 +146,6 @@ e1.stdout.close()
 dirs_r_new = e2.communicate()[0]				#creating dirs with random chmod
 print dirs_r_new								#display the process of creating dirs with random chmod
 time.sleep(3)
-
-
-
-
-
-
-
-
-
 
 
 #c1 Clean old test data

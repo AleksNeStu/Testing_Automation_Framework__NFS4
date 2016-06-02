@@ -457,8 +457,10 @@ class full_generator(object):
 	files_chmod = {}  	# the empty tuple of files with recognized access rights
 	def posix_chmod_parser(self,test_path,log_path="../logs/log_run.log"):
 		self.test_dir = test_path  # path to test dir with files and dirs (different chmod)
-		print "    START: Get directories and files in test directory " + self.test_dir
-		self.log_add(log_path,"START: Get directories and files in test directory " + self.test_dir)
+		print
+		print "    [Get directories and files in test directory " + self.test_dir + "] :"
+		self.log_add(log_path,"[Get directories and files in test directory " + self.test_dir + "] :")
+		print
 		for dir_n, dir_nn, file_nn in os.walk(self.test_dir):
 			blank = 0
 			for dir2 in dir_nn:			# Get directories
@@ -487,16 +489,14 @@ class full_generator(object):
 		self.files_chmod["rw"] = self.file_rw
 		self.dirs_chmod["r"] = self.dir_r
 		self.dirs_chmod["rw"] = self.dir_rw
-		print "    FINISH: Get directories and files in test directory " + self.test_dir
-		self.log_add(log_path, "FINISH: Get directories and files in test directory " + self.test_dir)
 
 #Check the ability to write str to the file
 	def posix_check_write_file(self, file_path, look, log_path="../logs/log_run.log"):
 		self.marker = True
 		res = look
 		str = "<NFSv4 test>" #str to write into the file
-		print "    Try writing the string " + str + " to the file " + file_path + " / Expected: " + look
-		self.log_add(log_path, "Try writing the string " + str + " to the file " + file_path + " / Expected: " + look)
+		print "    Try writing " + str + " to the file " + file_path + " / Expected: Passed"
+		self.log_add(log_path, "Try writing " + str + " to the file " + file_path + " / Expected: Passed")
 		try:
 			file = open(file_path, "w")
 			file.write(str)
@@ -508,15 +508,18 @@ class full_generator(object):
 			res = not look
 		self.marker = res
 		if (not res):
-			print "    Try writing the string " + str + " to the file " + file_path + " / Result: failed"
-			self.log_add(log_path, "Try writing the string " + str + " to the file " + file_path + " / Result: failed")
+			print "    Try writing " + str + " to the file " + file_path + " / Result: Failed"
+			self.log_add(log_path, "Try writing " + str + " to the file " + file_path + " / Result: Failed")
+		else:
+			print "    Try writing " + str + " to the file " + file_path + " / Result: Passed"
+			self.log_add(log_path, "Try writing " + str + " to the file " + file_path + " / Result: Passed")
 
 #Check the ability to read the file
 	def posix_check_read_file(self, file_path, look, log_path="../logs/log_run.log"):
 		self.marker = True
 		res = look
-		print "    Try reading the file " + file_path + " / Expected: " + look
-		self.log_add(log_path, "Try reading the file " + file_path + " / Expected: " + look)
+		print "    Try reading the file " + file_path + " / Expected: Passed"
+		self.log_add(log_path, "Try reading the file " + file_path + " / Expected: Passed")
 		try:
 			file = open(file_path, "r")
 			file.close()
@@ -526,32 +529,56 @@ class full_generator(object):
 		if (not res):
 			print "    Try reading the file " + file_path + " / Result: failed"
 			self.log_add(log_path, "Try reading the file " + file_path + " / Result: failed")
+		else:
+			print "    Try reading the file " + file_path + " / Result: Passed"
+			self.log_add(log_path, "Try reading the file " + file_path + " / Result: Passed")
 
 
-	def posix_chmod_check_files(self,test_path, cycles, log_path="../logs/log_run.log"):
+	def posix_chmod_check_files(self,test_path, log_path="../logs/log_run.log"):
 		self.test_dir = test_path  # path to test dir with files (different chmod)
 		self.posix_chmod_parser(test_path)	#Get directories and files in test dir
 		files = self.files_chmod
-		print "    START: Check the permissions of the files in test directory " + self.test_dir
-		self.log_add(log_path,"START: Check the permissions of the files in test directory " + self.test_dir)
+		print
+		print "    [Check the permissions of the files in test directory " + self.test_dir + " ] :"
+		print
+		self.log_add(log_path,"[Check the permissions of the files in test directory " + self.test_dir + " ] :")
 #FILE READ TEST
-		print "    START: Test to read for files with permissions: r"
-		self.log_add(log_path, "START: Test to read for files with permissions: r ")
+		print "    [Test to read for files with permissions: r] / Expected: PASSED"
+		print
+		self.log_add(log_path, "[Test to read for files with permissions: r] / Expected: PASSED")
 		self.marker = True
 		for r in files["r"]:
 			self.posix_check_read_file(r, True)		#wait +
 			self.posix_check_write_file(r, False)	#wait -
-		print "    FINISH: Test to read for files with permissions: r is : " + str(self.marker)
-		self.log_add(log_path, "    FINISH: Test to read for files with permissions: r is : " + str(self.marker))
+		if self.posix_check_read_file(r, True) is True and self.posix_check_write_file(r, False) is True:
+			end = "PASSED"
+		else:
+			end = "FAILED"
+		print
+		print "    [Test to read for files with permissions: r] / Result: " + end
+		self.log_add(log_path, "[Test to read for files with permissions: r] / Result: " + end)
 #FILE READ AND WRITE TEST
-		print "    START: Test to read and write for files with permissions: rw"
-		self.log_add(log_path, "START: Test to read and write for files with permissions: rw ")
+
+	def posix_chmod_check_files2(self, test_path, log_path="../logs/log_run.log"):
+		self.test_dir = test_path  # path to test dir with files (different chmod)
+		self.posix_chmod_parser(test_path)  # Get directories and files in test dir
+		files = self.files_chmod
+		print
+		print "    [Test to read and write for files with permissions: rw] / Expected: PASSED"
+		print
+		self.log_add(log_path, "[Test to read and write for files with permissions: rw] / Expected: PASSED")
 		self.marker = True
-		for rw in files["rw"]:
-			self.posix_check_read_file(r, True)		#wait +
-			self.posix_check_write_file(r, True)	#wait +
-		print "    FINISH: Test to read and drite for files with permissions: rw is : " + str(self.marker)
-		self.log_add(log_path, "    FINISH: Test to read and write for files with permissions: rw is : " + str(self.marker))
+		for g in files["rw"]:
+			self.posix_check_read_file(g, True)		#wait +
+			self.posix_check_write_file(g, True)	#wait +
+		if self.posix_check_read_file(g, True) is True and self.posix_check_write_file(g, True) is True:
+			end2 = "PASSED"
+		else:
+			end2 = "FAILED"
+		print
+		print "    [Test to read and write for files with permissions: rw] / Result: " + end2
+		print
+		self.log_add(log_path, "[Test to read and write for files with permissions: rw] / Result: " + end2)
 
 
 # add options
