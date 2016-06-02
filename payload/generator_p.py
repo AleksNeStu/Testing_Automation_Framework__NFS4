@@ -212,6 +212,38 @@ class full_generator(object):
 	def print_dirs_list_r(self,log_path="../logs/log_run.log"):
 		print self.dirs_list_r
 
+#Print list of dirs with rights: r
+	def print_dir_r(self,log_path="../logs/log_run.log"):
+		print self.dir_r
+
+#Print list of dirs with rights: rw
+	def print_dir_rw(self,log_path="../logs/log_run.log"):
+		print self.dir_rw
+
+#Print list of files with rights: r
+	def print_file_r(self,log_path="../logs/log_run.log"):
+		print self.file_r
+
+#Print list of files with rights: rw
+	def print_file_rw(self,log_path="../logs/log_run.log"):
+		print self.file_rw
+
+#Print list of files
+	def print_files(self,log_path="../logs/log_run.log"):
+		print self.files
+
+#Print list of dirs
+	def print_dirs(self,log_path="../logs/log_run.log"):
+		print self.dirs
+
+#Print list of files + chmod
+	def print_files_chmod(self,log_path="../logs/log_run.log"):
+		print self.files_chmod
+
+#Print list of dirs + chmod
+	def print_dirs_chmod(self,log_path="../logs/log_run.log"):
+		print self.dirs_chmod
+
 	#Log execution process of tests (add info)
 	def log_add(self,log_path,add):
 		time = str(strftime("%Y-%m-%d %H:%M:%S"))  # time when execute code
@@ -465,24 +497,24 @@ class full_generator(object):
 			blank = 0
 			for dir2 in dir_nn:			# Get directories
 				dir_true = os.path.join(dir_n, dir2)
-				mode = int(oct(os.stat(dir_true).st_mode)[-3:])  # get chmod (permissions) ___uga
-				print "    Get dir: " + dir_true + " permissions: " + str(mode)
-				self.log_add(log_path,"Get dir: " + dir_true + " permissions: " + str(mode))
+				mode_d = int(oct(os.stat(dir_true).st_mode)[-3:])  # get chmod (permissions) ___uga
+				print "    Get dir: " + dir_true + " permissions: " + str(mode_d)
+				self.log_add(log_path,"Get dir: " + dir_true + " permissions: " + str(mode_d))
 				blank += 1
-				self.dirs.append(dir_true)
-				if mode >= 444:					#444 = -r--r--r--  any can read dir
+				self.dirs.append(dir_true) #444 = -r--r--r--  any can read  /  #666 = -rw-rw-rw-  any can read and write
+				if mode_d in range (444,666):	#444 .. 665
 					self.dir_r.append(dir_true)
-				elif mode >=666:				#666 = -rw-rw-rw-  any can read and write dir
+				elif mode_d in range (666,778): #666 .. 777
 					self.dir_rw.append(dir_true)
 			for file_n in file_nn:			# Get files
 				file_true = os.path.join(dir_n, file_n)
-				mode = int(oct(os.stat(file_true).st_mode)[-3:])			# get chmod (permissions) ___uga
-				print "    Get file: " + file_true + " permissions: " + str(mode)
-				self.log_add(log_path,"Get file: " + file_true + " permissions: " + str(mode))
-				self.files.append(file_true)
-				if mode >= 444:					#444 = -r--r--r--  any can read file
+				mode_f = int(oct(os.stat(file_true).st_mode)[-3:])			# get chmod (permissions) ___uga
+				print "    Get file: " + file_true + " permissions: " + str(mode_f)
+				self.log_add(log_path,"Get file: " + file_true + " permissions: " + str(mode_f))
+				self.files.append(file_true) #444 = -r--r--r--  any can read  /  #666 = -rw-rw-rw-  any can read and write
+				if mode_f in range(444, 666):  # 444 .. 665
 					self.file_r.append(file_true)
-				elif mode >= 666:				#666 = -rw-rw-rw-  any can read and write file
+				elif mode_f in range(666, 778):  # 666 .. 777
 					self.file_rw.append(file_true)
 		# add markers into the typles in order to find it in future tests
 		self.files_chmod["r"] = self.file_r
@@ -548,6 +580,7 @@ class full_generator(object):
 		self.log_add(log_path, "[Test to read for files with permissions: r] / Expected: PASSED")
 		self.marker = True
 		for r in files["r"]:
+			print "r=" +r
 			self.posix_check_read_file(r, True)		#wait +
 			self.posix_check_write_file(r, False)	#wait -
 		if self.posix_check_read_file(r, True) is True and self.posix_check_write_file(r, False) is True:
@@ -568,10 +601,11 @@ class full_generator(object):
 		print
 		self.log_add(log_path, "[Test to read and write for files with permissions: rw] / Expected: PASSED")
 		self.marker = True
-		for g in files["rw"]:
-			self.posix_check_read_file(g, True)		#wait +
-			self.posix_check_write_file(g, True)	#wait +
-		if self.posix_check_read_file(g, True) is True and self.posix_check_write_file(g, True) is True:
+		for rw in files["rw"]:
+			print "rw="+rw
+			self.posix_check_read_file(rw, True)		#wait +
+			self.posix_check_write_file(rw, True)	#wait +
+		if self.posix_check_read_file(rw, True) is True and self.posix_check_write_file(rw, True) is True:
 			end2 = "PASSED"
 		else:
 			end2 = "FAILED"
