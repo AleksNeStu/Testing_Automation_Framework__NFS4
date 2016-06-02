@@ -532,11 +532,11 @@ class full_generator(object):
 
 #Check the ability to write str to the file
 	def posix_check_write_file(self, file_path, look, log_path="../logs/log_run.log"):
-		self.marker = True
+		# self.marker = True
 		res = look
 		str = "<NFSv4 test>" #str to write into the file
-		print "    Try writing " + str + " to the file " + file_path + " / Expected: Passed"
-		self.log_add(log_path, "Try writing " + str + " to the file " + file_path + " / Expected: Passed")
+		print "    Try writing " + str + " to the file " + file_path + " / Expected: " + format(look)
+		self.log_add(log_path, "Try writing " + str + " to the file " + file_path + " / Expected: " + format(look))
 		try:
 			file = open(file_path, "w")
 			file.write(str)
@@ -546,33 +546,33 @@ class full_generator(object):
 			file.close()
 		except IOError:
 			res = not look
-		self.marker = res
+		self.flag = res
 		if (not res):
-			print "    Try writing " + str + " to the file " + file_path + " / Result: Failed"
-			self.log_add(log_path, "Try writing " + str + " to the file " + file_path + " / Result: Failed")
+			print "    Try writing " + str + " to the file " + file_path + " / Result: True / Test: Failed"
+			self.log_add(log_path, "Try writing " + str + " to the file " + file_path + " / Result: True / Test: Failed")
 		else:
-			print "    Try writing " + str + " to the file " + file_path + " / Result: Passed"
-			self.log_add(log_path, "Try writing " + str + " to the file " + file_path + " / Result: Passed")
+			print "    Try writing " + str + " to the file " + file_path + " / Result: False / Test: Passed"
+			self.log_add(log_path, "Try writing " + str + " to the file " + file_path + " / Result: False / Test: Passed")
 
 #Check the ability to read the file
 	def posix_check_read_file(self, file_path, look, log_path="../logs/log_run.log"):
-		self.marker = True
+		# self.marker = True
 		res = look
-		print "    Try reading the file " + file_path + " / Expected: Passed"
-		self.log_add(log_path, "Try reading the file " + file_path + " / Expected: Passed")
+		print "    Try reading the file " + file_path + " / Expected: " + format(look)
+		self.log_add(log_path, "Try reading the file " + file_path + " / Expected: XXX")
 		try:
 			file = open(file_path, "r")
 			file.close()
 		except IOError:
 			res = not look
 		self.marker = res
+		# print "READ" + format(look)
 		if (not res):
-			print "    Try reading the file " + file_path + " / Result: failed"
-			self.log_add(log_path, "Try reading the file " + file_path + " / Result: failed")
+			print "    Try reading the file " + file_path + " / Result: False / Test: Failed"
+			self.log_add(log_path, "Try reading the file " + file_path + " / Result: False / Test: Failed")
 		else:
-			print "    Try reading the file " + file_path + " / Result: Passed"
-			self.log_add(log_path, "Try reading the file " + file_path + " / Result: Passed")
-
+			print "    Try reading the file " + file_path + " / Result: True / Test: Passed"
+			self.log_add(log_path, "Try reading the file " + file_path + " / Result: True / Test: Passed")
 
 	def posix_chmod_check_files(self,test_path, log_path="../logs/log_run.log"):
 		self.test_dir = test_path  # path to test dir with files (different chmod)
@@ -588,39 +588,38 @@ class full_generator(object):
 		self.log_add(log_path, "[Test to read for files with permissions: r] / Expected: PASSED")
 		self.marker = True
 		for r in files["r"]:
-			print "r=" +r
 			self.posix_check_read_file(r, True)		#wait +
 			self.posix_check_write_file(r, False)	#wait -
-		if self.posix_check_read_file(r, True) is True and self.posix_check_write_file(r, False) is True:
+		if self.marker is True:
 			end = "PASSED"
 		else:
 			end = "FAILED"
 		print
 		print "    [Test to read for files with permissions: r] / Result: " + end
 		self.log_add(log_path, "[Test to read for files with permissions: r] / Result: " + end)
-#FILE READ AND WRITE TEST
-
-	def posix_chmod_check_files2(self, test_path, log_path="../logs/log_run.log"):
-		self.test_dir = test_path  # path to test dir with files (different chmod)
-		self.posix_chmod_parser(test_path)  # Get directories and files in test dir
-		files = self.files_chmod
-		print
-		print "    [Test to read and write for files with permissions: rw] / Expected: PASSED"
-		print
-		self.log_add(log_path, "[Test to read and write for files with permissions: rw] / Expected: PASSED")
-		self.marker = True
-		for rw in files["rw"]:
-			print "rw="+rw
-			self.posix_check_read_file(rw, True)		#wait +
-			self.posix_check_write_file(rw, True)	#wait +
-		if self.posix_check_read_file(rw, True) is True and self.posix_check_write_file(rw, True) is True:
-			end2 = "PASSED"
-		else:
-			end2 = "FAILED"
-		print
-		print "    [Test to read and write for files with permissions: rw] / Result: " + end2
-		print
-		self.log_add(log_path, "[Test to read and write for files with permissions: rw] / Result: " + end2)
+# #FILE READ AND WRITE TEST
+#
+# 	def posix_chmod_check_files2(self, test_path, log_path="../logs/log_run.log"):
+# 		self.test_dir = test_path  # path to test dir with files (different chmod)
+# 		self.posix_chmod_parser(test_path)  # Get directories and files in test dir
+# 		files = self.files_chmod
+# 		print
+# 		print "    [Test to read and write for files with permissions: rw] / Expected: PASSED"
+# 		print
+# 		self.log_add(log_path, "[Test to read and write for files with permissions: rw] / Expected: PASSED")
+# 		self.marker = True
+# 		for rw in files["rw"]:
+# 			print "rw="+rw
+# 			self.posix_check_read_file(rw, True)		#wait +
+# 			self.posix_check_write_file(rw, True)	#wait +
+# 		if self.posix_check_read_file(rw, True) is True and self.posix_check_write_file(rw, True) is True:
+# 			end2 = "PASSED"
+# 		else:
+# 			end2 = "FAILED"
+# 		print
+# 		print "    [Test to read and write for files with permissions: rw] / Result: " + end2
+# 		print
+# 		self.log_add(log_path, "[Test to read and write for files with permissions: rw] / Result: " + end2)
 
 
 # add options
