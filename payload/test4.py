@@ -22,22 +22,22 @@ print """
 ======================================================================================
 
 Test #4: The complex test for owner/permission/content modification of
-         NFSv4 file system
+         NFSv4 file system [POSIX]
 
          Part 1 - Check the ability of check the permissions of the files
 
          > Description     : Check the ability of changes the permissions of the files
-         > Steps           : Run used functions of full_generator and full_cleaner
+         > Steps           : Run used functions of full_generator
          > Expected result : Display "TEST #4 PART 2 HAS BEEN PASSED"
 
          Part 2 - Check the ability of check the permissions of the directories
 
          > Description     : Check the ability of changes the permissions of the directories
-         > Steps           : Run used functions of full_generator and full_cleaner
+         > Steps           : Run used functions of full_generator
          > Expected result : Display "TEST #4 PART 2 HAS BEEN PASSED"
 
          *** All parts of the complex test will be performed sequentially
-         and will be running in the export directory on NFSv4 server side
+         and will be running in the mount directory on NFSv4 client side
 
 ======================================================================================
 """
@@ -65,7 +65,7 @@ print "    NFSv4 exported dir: ",nfs_exp #view /nfs, /dirnfs, ...
 print
 
 #i3 Set the number of users and groups to be created on the NFSv4 server
-print "    3) The number of users, groups, files, directories to be created on the NFSv4 server: "
+print "    3) The number files, directories to be created on the NFSv4 client in mount dir: "
 #Check input data (the number of users, groups, files, directories) in range [5, 50]
 print
 while True:
@@ -103,63 +103,94 @@ print
 #t3 Hidden clean the test data from previous run tests
 #client side clean
 full_cleaner().clean_full_h(nfs_exp)
-full_cleaner().clean_mounts_exports_h(str(server))
 #server side clean "full_cleaner().clean_full_h(nfs_exp)"
-a1 = subprocess.Popen(["cat", "./cleaner_p.py", ], stdout=subprocess.PIPE)
-a2 = subprocess.Popen(["/usr/bin/rsh", server, "python", "-", "-c", nfs_exp], stdin=a1.stdout, stdout=subprocess.PIPE)
-a1.stdout.close()
-rm_cleaner = a2.communicate()[0]			#creating groups
-print
+# a1 = subprocess.Popen(["cat", "./cleaner_p.py", ], stdout=subprocess.PIPE)
+# a2 = subprocess.Popen(["/usr/bin/rsh", server, "python", "-", "-c", nfs_exp], stdin=a1.stdout, stdout=subprocess.PIPE)
+# a1.stdout.close()
+# rm_cleaner = a2.communicate()[0]			#creating groups
 
-#t4 Create groups on the NFSv4 client and server
-print "    [Create", objects, "groups, users on the NFSv4 client] : "
+print "    [Create", objects, " files, directories (random chmod) on the NFSv4 client in mount dir] : "
 print
-generator.create_groups_n(objects_n)    #create groups with display output
+full_generator().create_files_random_chmod(nfs_exp,objects_n) #dirs
 print
-generator.create_users_n(objects_n)     #create users with display output
+full_generator().create_dirs_random_chmod(nfs_exp,objects_n) # files
+print
+# b1 = subprocess.Popen(["cat", "./generator_p.py", ], stdout=subprocess.PIPE)
+# b2 = subprocess.Popen(["/usr/bin/rsh", server, "python", "- ", "-g", objects], stdin=b1.stdout, stdout=subprocess.PIPE)
+# b1.stdout.close()
+# groups_new = b2.communicate()[0]			#creating groups
+# print groups_new							#display the process of creating groups
+# print
+# c1 = subprocess.Popen(["cat", "./generator_p.py", ], stdout=subprocess.PIPE)
+# c2 = subprocess.Popen(["/usr/bin/rsh", server, "python", "- ", "--gg", "-u", objects], stdin=c1.stdout, stdout=subprocess.PIPE)
+# c1.stdout.close()
+# users_new = c2.communicate()[0]				#creating users
+# print users_new								#display the process of creating users
+# time.sleep(3)
+# print
+# d1 = subprocess.Popen(["cat", "./generator_p.py", ], stdout=subprocess.PIPE)
+# d2 = subprocess.Popen(["/usr/bin/rsh", server, "python", "- ", "--ddd", nfs_exp, "--nf", objects], stdin=d1.stdout, stdout=subprocess.PIPE)
+# d1.stdout.close()
+# files_r_new = d2.communicate()[0]				#creating files with random chmod
+# print files_r_new								#display the process of creating files with random chmod
+# print
+# e1 = subprocess.Popen(["cat", "./generator_p.py", ], stdout=subprocess.PIPE)
+# e2 = subprocess.Popen(["/usr/bin/rsh", server, "python", "- ", "--ddd", nfs_exp, "--nd", objects], stdin=e1.stdout, stdout=subprocess.PIPE)
+# e1.stdout.close()
+# dirs_r_new = e2.communicate()[0]				#creating dirs with random chmod
+# print dirs_r_new								#display the process of creating dirs with random chmod
+# time.sleep(3)
+
+print
+print "    [Part 1 - Check the ability of check the permissions of the files] : "
+print
+# f1 = subprocess.Popen(["cat", "./generator_p.py", ], stdout=subprocess.PIPE)
+# f2 = subprocess.Popen(["/usr/bin/rsh", server, "python", "-", "--posix1", nfs_exp], stdin=f1.stdout, stdout=subprocess.PIPE)
+# f1.stdout.close()
+# posix_1 = f2.communicate()[0]
+# print posix_1
+full_generator().posix_chmod_check_files(nfs_exp)
 time.sleep(3)
+
+
 print
-print "    [Create", objects, "groups, users, files, directories (random chmod) on the NFSv4 server] : "
+print "    [Part 2 - Check the ability of check the permissions of the directories] : "
 print
-b1 = subprocess.Popen(["cat", "./generator_p.py", ], stdout=subprocess.PIPE)
-b2 = subprocess.Popen(["/usr/bin/rsh", server, "python", "-", "-g", objects], stdin=b1.stdout, stdout=subprocess.PIPE)
-b1.stdout.close()
-groups_new = b2.communicate()[0]			#creating groups
-print groups_new							#display the process of creating groups
-print
-c1 = subprocess.Popen(["cat", "./generator_p.py", ], stdout=subprocess.PIPE)
-c2 = subprocess.Popen(["/usr/bin/rsh", server, "python", "-", "--gg", "-u", objects], stdin=c1.stdout, stdout=subprocess.PIPE)
-c1.stdout.close()
-users_new = c2.communicate()[0]				#creating users
-print users_new								#display the process of creating users
-time.sleep(3)
-print
-d1 = subprocess.Popen(["cat", "./generator_p.py", ], stdout=subprocess.PIPE)
-d2 = subprocess.Popen(["/usr/bin/rsh", server, "python", "-", "--ddd", nfs_exp, "-ff", objects], stdin=d1.stdout, stdout=subprocess.PIPE)
-d1.stdout.close()
-files_r_new = d2.communicate()[0]				#creating files with random chmod
-print files_r_new								#display the process of creating files with random chmod
-print
-e1 = subprocess.Popen(["cat", "./generator_p.py", ], stdout=subprocess.PIPE)
-e2 = subprocess.Popen(["/usr/bin/rsh", server, "python", "-", "--ddd", nfs_exp, "-dd", objects], stdin=e1.stdout, stdout=subprocess.PIPE)
-e1.stdout.close()
-dirs_r_new = e2.communicate()[0]				#creating dirs with random chmod
-print dirs_r_new								#display the process of creating dirs with random chmod
+# g1 = subprocess.Popen(["cat", "./generator_p.py", ], stdout=subprocess.PIPE)
+# g2 = subprocess.Popen(["/usr/bin/rsh", server, "python", "-", "--posix2", nfs_exp], stdin=g1.stdout, stdout=subprocess.PIPE)
+# g1.stdout.close()
+# posix_2 = g2.communicate()[0]
+# print posix_2
+full_generator().posix_chmod_check_dirs(nfs_exp)
 time.sleep(3)
 
 
 #c1 Clean old test data
 print
 print
-print "    [Clean created test data from the NFSv4 server] : "
-
+print "    [Clean created test data from the NFSv4 client]"
+#client side clean
+full_cleaner().clean_full_h(nfs_exp)
+#server side clean "full_cleaner().clean_full_h(nfs_exp)"
+# a1 = subprocess.Popen(["cat", "./cleaner_p.py", ], stdout=subprocess.PIPE)
+# a2 = subprocess.Popen(["/usr/bin/rsh", server, "python", "-", "-c", nfs_exp], stdin=a1.stdout, stdout=subprocess.PIPE)
+# a1.stdout.close()
+# rm_cleaner2 = a2.communicate()[0]			#creating groups
+print
+print "    [Created test data have been cleaned from the NFSv4 client]"
+print
 
 #####################LOG AND PRINT RESULTS################################
-#print "Test #3 [PASSED]"
+#print "Test #4 [PASSED]"
 ####GET THE MARKER OF RESULT OF TEST
+# str1 = "THE TEST #4 PART 1 HAS BEEN PASSED!!!"
+# str2 = "THE TEST #4 PART 2 HAS BEEN PASSED!!!"
+# file = open("../logs/log_run.log", "r")
+# for txt in file:
+#     if str1 and str2 in txt:
+#         file.close()
 
-check = commands.getoutput("/usr/bin/rsh " + server + " /usr/bin/systemctl status nfs.service")
-if check.find("active (exited)") != -1:
+if full_generator().posix_chmod_check_files(nfs_exp) is True and full_generator().posix_chmod_check_dirs(nfs_exp) is True:
     print """
 #####################################################################################
 

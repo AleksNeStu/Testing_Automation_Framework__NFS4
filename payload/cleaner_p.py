@@ -127,8 +127,8 @@ class full_cleaner(object):
 	def clean_full_h(self, clean_path): #clean_full (hidden)
 		commands.getoutput("/usr/bin/setfacl -R -b " + clean_path) #ACLs del
 		commands.getoutput("/usr/bin/setfacl -R -k " + clean_path)  # ACLs (defauls) del
-		commands.getoutput('/usr/bin/find ' + clean_path + ' -type f -name "nfs*" -exec rm -f {} \;') #files del
-		commands.getoutput('/usr/bin/find ' + clean_path + ' -type d -name "nfs*" -exec rm -rf {} \;')  # dirs del
+		commands.getoutput('/usr/bin/find ' + clean_path + ' -type f -name "nfs_file*" -exec rm -f {} \;') #files del
+		commands.getoutput('/usr/bin/find ' + clean_path + ' -type d -name "nfs_dir*" -exec rm -rf {} \;')  # dirs del
 		self.get_users()
 		self.get_groups()
 		self.clean_users_h()  #users del
