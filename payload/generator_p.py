@@ -91,6 +91,10 @@ class full_generator(object):
 
 # Generate "nb" files in directory "/test_path" with different and random access rights (chmod)
 	def create_files_random_chmod(self, test_path, nb, log_path="../logs/log_run.log"):
+		commands.getoutput("touch " + test_path + "/nfs_file_444; chmod -f u=r,g=r,o=r " + test_path + "/nfs_file_444") #static file with perm 444
+		self.files_list_r.append("nfs_file_444")
+		commands.getoutput("touch " + test_path + "/nfs_file_666; chmod -f u=rw,g=rw,o=rw " + test_path + "/nfs_file_666") #static file with perm 666
+		self.files_list_r.append("nfs_file_666")
 		for i in range(1, nb + 1):
 			fname = "nfs_file" + str(i)
 			file = test_path + "/" + fname  # the full path to the file
@@ -107,6 +111,10 @@ class full_generator(object):
 
 # Generate "nb" directories in "/test_path" with different and random access rights (chmod)
 	def create_dirs_random_chmod(self, test_path, nb, log_path="../logs/log_run.log"):
+		commands.getoutput("mkdir -p " + test_path + "/nfs_dir_444; chmod -R -f u=r,g=r,o=r " + test_path + "/nfs_dir_444") #static dir with perm 444
+		self.files_list_r.append("nfs_dir_444")
+		commands.getoutput("mkdir -p " + test_path + "/nfs_dir_666; chmod -R -f u=rw,g=rw,o=rw " + test_path + "/nfs_dir_666") #static dir with perm 666
+		self.files_list_r.append("nfs_dir_666")
 		for i in range(1, nb + 1):
 			dname = "nfs_dir" + str(i)
 			dir = test_path + "/" + dname  # the full path to the dir
@@ -501,10 +509,10 @@ class full_generator(object):
 				print "    Get dir: " + dir_true + " permissions: " + str(mode_d)
 				self.log_add(log_path,"Get dir: " + dir_true + " permissions: " + str(mode_d))
 				blank += 1
-				self.dirs.append(dir_true) #444 = -r--r--r--  any can read  /  #666 = -rw-rw-rw-  any can read and write
-				if mode_d in range (444,666):	#444 .. 665
+				self.dirs.append(dir_true)
+				if mode_d in range (444,446):	#444 (r--r--r--) .. 446 (r--r--rw-)
 					self.dir_r.append(dir_true)
-				elif mode_d in range (666,778): #666 .. 777
+				elif mode_d in range (666,778): #666 (rw-rw-rw-) .. 777 (rwxrwxrwx))
 					self.dir_rw.append(dir_true)
 			for file_n in file_nn:			# Get files
 				file_true = os.path.join(dir_n, file_n)
@@ -512,7 +520,7 @@ class full_generator(object):
 				print "    Get file: " + file_true + " permissions: " + str(mode_f)
 				self.log_add(log_path,"Get file: " + file_true + " permissions: " + str(mode_f))
 				self.files.append(file_true) #444 = -r--r--r--  any can read  /  #666 = -rw-rw-rw-  any can read and write
-				if mode_f in range(444, 666):  # 444 .. 665
+				if mode_f in range(444, 446):  # 444 .. 446
 					self.file_r.append(file_true)
 				elif mode_f in range(666, 778):  # 666 .. 777
 					self.file_rw.append(file_true)
