@@ -1,4 +1,7 @@
-![main window of program](https://github.com/AleksNeStu/NFSv4/blob/master/Screen.png)
+![main window of program](https://github.com/AleksNeStu/NFSv4/blob/master/Screen1.png)
+
+![main window of program](https://github.com/AleksNeStu/NFSv4/blob/master/Screen2.png)
+
 LICENSE
 =======
 Free for personal use:)
